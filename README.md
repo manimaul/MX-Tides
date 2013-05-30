@@ -1,4 +1,10 @@
-MX Tides and AndXtideLib (https://github.com/manimaul/AndXtideLib) is an Android port of XTide by David Flater
+MX Tides and is an Android port of XTide by David Flater
+
+MX Tides also depends on the following open source libraries:
+AndXtideLib (https://github.com/manimaul/AndXtideLib)
+Osmdroid (http://osmdroid.googlecode.com/)
+Mapsforge (https://code.google.com/p/mapsforge/)
+GraphView (https://github.com/jjoe64/GraphView)
 
 MX Tides and AndXtideLib ("NOT FOR NAVIGATION," "ABSOLUTELY NO WARRANTY") are provided under the terms of the GNU General Public License, either version 3 of the License, or (at your option) any later version.
 

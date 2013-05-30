@@ -13,9 +13,11 @@ import org.slf4j.LoggerFactory;
 import android.app.ActionBar;
 import android.app.ActionBar.Tab;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.location.Location;
 import android.location.LocationManager;
@@ -48,6 +50,19 @@ public class MainActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		
+		final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setTitle(R.string.noticetitle);
+		builder.setMessage(R.string.notice);
+		builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				return;
+			}
+		} );
+		final AlertDialog notice = builder.create();
+		notice.show();
 
 		locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 		location = LocationUtils.getLastKnownLocation(locationManager);
