@@ -1,0 +1,3 @@
+[submodule "AndXtideLib"]
+	path = AndXtideLib
+	url = git@github.com:manimaul/AndXtideLib.git

@@ -23,6 +23,7 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.widget.Toolbar;
 
 import com.mxmariner.andxtidelib.XtideJni;
 import com.mxmariner.util.Constants;
@@ -84,7 +85,6 @@ public class MainActivity extends Activity {
 			prefeditor.putInt("zoom", 7);
 			prefeditor.commit();
 		}
-
 	}
 
 	/**
@@ -139,15 +139,15 @@ public class MainActivity extends Activity {
 		/*
 		 * We don't want to load harmonics twice
 		 */
-		if (xtideJni.getStationIndex().isEmpty()) {
+//		if (xtideJni.getStationIndex().isEmpty()) {
 			for (File f : tcdLst) {
 				if (f.isFile() && f.canRead()) {
-					xtideJni.loadHarmonics(f.getAbsolutePath());
+					xtideJni.loadHarmonicsI(f.getAbsolutePath());
 				}
 			}
-		}
+//		}
 
-		String[] stations = xtideJni.getStationIndex().split("\n");
+		String[] stations = xtideJni.getStationIndexI().split("\n");
 		Location tempLoc = new Location("temp");
 		for (String sta : stations) {
 			final Station s = new Station(sta);
@@ -187,11 +187,11 @@ public class MainActivity extends Activity {
 	}
 	
 	public void setStationDataTime(final long epoch, final Station station) {
-		station.setAbout(xtideJni.getStationAbout(station.getName(), epoch));
-		station.setRawData(xtideJni.getStationRawData(station.getName(), epoch));
-		station.setData(xtideJni.getStationPlainData(station.getName(), epoch));
-		station.setTime(xtideJni.getStationTimestamp(station.getName(), epoch));
-		station.setPrecition(xtideJni.getStationPrediction(station.getName(), epoch));
+		station.setAbout(xtideJni.getStationAboutI(station.getName(), epoch));
+		station.setRawData(xtideJni.getStationRawDataI(station.getName(), epoch));
+		station.setData(xtideJni.getStationPlainDataI(station.getName(), epoch));
+		station.setTime(xtideJni.getStationTimestampI(station.getName(), epoch));
+		station.setPrecition(xtideJni.getStationPredictionI(station.getName(), epoch));
 	}
 
 	public BoundingBoxE6 getMapBox() {
