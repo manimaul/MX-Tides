@@ -1,314 +1,118 @@
 package com.mxmariner.tides;
 
+
+import android.annotation.TargetApi;
+import android.app.Activity;
+import android.content.Context;
+import android.location.Location;
+import android.location.LocationManager;
+import android.os.Build;
+import android.os.Bundle;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.view.View;
+import android.view.Window;
+import android.widget.ProgressBar;
+
+import com.mxmariner.andxtidelib.HarmonicsDatabase;
+import com.mxmariner.andxtidelib.MXLatLng;
+import com.mxmariner.andxtidelib.Station;
+import com.mxmariner.util.MXTools;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 
-import org.osmdroid.util.BoundingBoxE6;
-import org.osmdroid.util.GeoPoint;
-import org.osmdroid.util.LocationUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+public class MainActivity extends Activity implements HarmonicsDatabase.IHarmonicsDatabaseCallback {
+    public static final String TAG = MainActivity.class.getSimpleName();
 
-import android.app.ActionBar;
-import android.app.ActionBar.Tab;
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.Fragment;
-import android.app.FragmentTransaction;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.SharedPreferences;
-import android.location.Location;
-import android.location.LocationManager;
-import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.widget.Toolbar;
+    private RecyclerView recyclerView;
+    private ProgressBar progressBar;
 
-import com.mxmariner.andxtidelib.XtideJni;
-import com.mxmariner.util.Constants;
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
+        }
+        setContentView(R.layout.activity_main);
 
-public class MainActivity extends Activity {
-	public static final String TAG = "MainActivity";
+        recyclerView = (RecyclerView) findViewById(R.id.activity_main_recycler_view);
+        progressBar = (ProgressBar) findViewById(R.id.activity_main_loading);
 
-	private Logger logger = null;
-	private final boolean debugon = true;
-	private final XtideJni xtideJni = new XtideJni();
-	private final ArrayList<Station> tideStations = new ArrayList<Station>();
-	private final ArrayList<Station> currentStations = new ArrayList<Station>();
-	private ArrayList<Station> subListTides = new ArrayList<Station>();
-	private ArrayList<Station> subListCurrents = new ArrayList<Station>();
-	private LocationManager locationManager;
-	private Location location;
-	private Station selectedStation;
-	private MyMapView mMapView;
-	private SharedPreferences prefs;
-	private SharedPreferences.Editor prefeditor;
-	private BoundingBoxE6 mapBox;
-	private boolean useMapBox = true;
+        recyclerView.setVisibility(View.GONE);
 
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_main);
-		
-		final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setTitle(R.string.noticetitle);
-		builder.setMessage(R.string.notice);
-		builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-			
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				return;
-			}
-		} );
-		final AlertDialog notice = builder.create();
-		notice.show();
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(getApplicationContext(), 1);
 
-		locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-		location = LocationUtils.getLastKnownLocation(locationManager);
+        recyclerView.setLayoutManager(gridLayoutManager);
+        //recyclerView.setItemAnimator(new DefaultItemAnimator());
 
-		if (debugon) {
-			logger = LoggerFactory.getLogger(Preparations.class);
-			logger.info("debug is on!");
-		}
+        String tcdName = "harmonics-dwf-20141224-free.tcd";
+        File tcd = new File(getFilesDir(), tcdName);
 
-		Preparations preps = new Preparations(this);
-		preps.execute();
-		
-		prefs = PreferenceManager.getDefaultSharedPreferences(this);
-		prefeditor = prefs.edit();
-		
-		if (location != null) {
-			prefeditor.putInt("latE6", (int) (location.getLatitude()*1E6));
-			prefeditor.putInt("lngE6", (int) (location.getLongitude()*1E6));
-			prefeditor.putInt("zoom", 7);
-			prefeditor.commit();
-		}
-	}
+        if (MXTools.copyAssetFile(getApplicationContext(), "harmonics/" + tcdName, tcd)) {
+            HarmonicsDatabase.createDatabaseAsync(tcd, this);
+        }
+    }
 
-	/**
-	 * To be called after preparation async task finishes
-	 */
-	protected void load() {
-		// setup action bar for tabs
-		ActionBar actionBar = getActionBar();
-		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-		actionBar.setDisplayShowTitleEnabled(true);
+    @Override
+    public void onInitiated(HarmonicsDatabase database) {
+        ArrayList<Station> stations = database.getTideStations();
+        Collections.sort(stations, new StationSorter());
+        StationAdapter adapter = new StationAdapter(stations);
+        recyclerView.setAdapter(adapter);
+        progressBar.setVisibility(View.GONE);
+        recyclerView.setVisibility(View.VISIBLE);
+    }
 
-		// add map tab
-		Tab mapTab = actionBar
-				.newTab()
-				.setText(MapFragment.TAG)
-				.setTabListener(
-						new TabListener<MapFragment>(this, MapFragment.TAG,
-								MapFragment.class));
-		actionBar.addTab(mapTab);
 
-		// add tides tab
-		Tab tideTab = actionBar
-				.newTab()
-				.setText(TideListFragment.TAG)
-				.setTabListener(
-						new TabListener<TideListFragment>(this,
-								TideListFragment.TAG, TideListFragment.class));
-		actionBar.addTab(tideTab);
+    private MXLatLng getLastKnownLocation() {
+        LocationManager pLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        final Location gpsLocation = getLastKnownLocation(pLocationManager, LocationManager.GPS_PROVIDER);
+        final Location networkLocation = getLastKnownLocation(pLocationManager, LocationManager.NETWORK_PROVIDER);
+        if (gpsLocation == null) {
+            return new MXLatLng(networkLocation);
+        } else if (networkLocation == null) {
+            return new MXLatLng(gpsLocation);
+        } else {
+            // both are non-null - use the most recent (+ delay for GPS)
+            if (networkLocation.getTime() > gpsLocation.getTime() + 3000) {
+                return new MXLatLng(networkLocation);
+            } else {
+                return new MXLatLng(gpsLocation);
+            }
+        }
+    }
 
-		// add currents tab
-		Tab currTab = actionBar
-				.newTab()
-				.setText(CurrentListFragment.TAG)
-				.setTabListener(
-						new TabListener<CurrentListFragment>(this,
-								CurrentListFragment.TAG,
-								CurrentListFragment.class));
-		actionBar.addTab(currTab);
+    private Location getLastKnownLocation(LocationManager pLocationManager, String pProvider) {
+        try {
+            if (!pLocationManager.isProviderEnabled(pProvider)) {
+                return null;
+            }
+        } catch (final IllegalArgumentException e) {
+            return null;
+        }
+        return pLocationManager.getLastKnownLocation(pProvider);
+    }
 
-		Tab stationTab = actionBar
-				.newTab()
-				.setText(StationFragment.TAG)
-				.setTabListener(
-						new TabListener<StationFragment>(this,
-								StationFragment.TAG, StationFragment.class));
-		actionBar.addTab(stationTab);
+    class StationSorter implements Comparator<Station> {
+        MXLatLng position = getLastKnownLocation();
 
-		// initialize xtide data
-		File[] tcdLst = Constants.GetMXTideDir().listFiles();
-		// xtideJni = new XtideJni();
+        @Override
+        public int compare(Station lhs, Station rhs) {
+            if (position == null) {
+                return 0;
+            }
+            int lhsDistance = lhs.getPosition().distanceToPoint(position);
+            int rhsDistance = rhs.getPosition().distanceToPoint(position);
 
-		/*
-		 * We don't want to load harmonics twice
-		 */
-//		if (xtideJni.getStationIndex().isEmpty()) {
-			for (File f : tcdLst) {
-				if (f.isFile() && f.canRead()) {
-					xtideJni.loadHarmonicsI(f.getAbsolutePath());
-				}
-			}
-//		}
-
-		String[] stations = xtideJni.getStationIndexI().split("\n");
-		Location tempLoc = new Location("temp");
-		for (String sta : stations) {
-			final Station s = new Station(sta);
-			if (s.getStationType().equals(Station.TYPE_TIDE))
-				tideStations.add(s);
-			else
-				currentStations.add(s);
-			if (location != null) {
-				tempLoc.setLatitude(s.getLatE6() / 1E6);
-				tempLoc.setLongitude(s.getLngE6() / 1E6);
-				s.setDistance(location.distanceTo(tempLoc));
-			}
-		}
-		
-		if (location != null) {
-			Collections.sort(tideStations, SorterFactory.getStationDistanceSorter());
-		}
-		setSelectedStation(tideStations.get(0));
-	}
-
-	public void goToTideTab() {
-		getActionBar().setSelectedNavigationItem(1);
-	}
-
-	public void goToCurrentTab() {
-		getActionBar().setSelectedNavigationItem(2);
-	}
-
-	public void goToStationTab() {
-		getActionBar().setSelectedNavigationItem(3);
-	}
-
-	public void setSelectedStation(final Station station) {
-		//final long epoch = System.currentTimeMillis() / 1000;
-		//setStationDataTime(epoch, station);
-		this.selectedStation = station;
-	}
-	
-	public void setStationDataTime(final long epoch, final Station station) {
-		station.setAbout(xtideJni.getStationAboutI(station.getName(), epoch));
-		station.setRawData(xtideJni.getStationRawDataI(station.getName(), epoch));
-		station.setData(xtideJni.getStationPlainDataI(station.getName(), epoch));
-		station.setTime(xtideJni.getStationTimestampI(station.getName(), epoch));
-		station.setPrecition(xtideJni.getStationPredictionI(station.getName(), epoch));
-	}
-
-	public BoundingBoxE6 getMapBox() {
-		return mapBox;
-	}
-
-	public void setMapBox(final BoundingBoxE6 box) {
-		mapBox = box;
-	}
-
-	public MyMapView getMapView() {
-		return mMapView;
-	}
-
-	public void setMapView(final MyMapView mmv) {
-		mMapView = mmv;
-	}
-
-	public Station getSelectedStation() {
-		return selectedStation;
-	}
-
-	public Location getLocation() {
-		return location;
-	}
-
-	public ArrayList<Station> getTideStationList() {
-		return tideStations;
-	}
-
-	public ArrayList<Station> getCurrentStationList() {
-		return currentStations;
-	}
-	
-	public SharedPreferences.Editor getPrefEditor() {
-		return prefeditor;
-	}
-	
-	public SharedPreferences getPrefs() {
-		return prefs;
-	}
-
-	public ArrayList<Station> getTideStationSubList() {
-		return subListTides;
-	}
-
-	public ArrayList<Station> getCurrStationSubList() {
-		return subListCurrents;
-	}
-
-	public ArrayList<Station> getStationSubList(final String stationType) {
-		final ArrayList<Station> subList = stationType.equals(Station.TYPE_TIDE) ? subListTides
-				: subListCurrents;
-		if (useMapBox) {
-			subList.clear();
-			final GeoPoint gp = new GeoPoint(0,0);
-			for (Station s: stationType.equals(Station.TYPE_TIDE) ? tideStations : currentStations) {
-				gp.setCoordsE6(s.getLatE6(), s.getLngE6());
-				if (mapBox.contains(gp))
-					subList.add(s);
-			}
-		}
-		return subList;
-	}
-	
-	public void setUseMapBox(final boolean use) {
-		useMapBox = use;
-	}
-
-	protected XtideJni getXtideJni() {
-		return xtideJni;
-	}
-
-//	@Override
-//	public boolean onCreateOptionsMenu(Menu menu) {
-//		// Inflate the menu; this adds items to the action bar if it is present.
-//		getMenuInflater().inflate(R.menu.main, menu);
-//
-//		// SearchView searchView = (SearchView)
-//		// menu.findItem(R.id.menu_search).getActionView();
-//		// TODO:
-//		// http://developer.android.com/guide/topics/search/search-dialog.html
-//
-//		return true;
-//	}
-
-	public static class TabListener<T extends Fragment> implements
-			ActionBar.TabListener {
-		private Fragment mFragment;
-		private final MainActivity mActivity;
-		private final String mTag;
-		private final Class<T> mClass;
-
-		public TabListener(MainActivity activity, String tag, Class<T> clz) {
-			mActivity = activity;
-			mTag = tag;
-			mClass = clz;
-		}
-
-		/* The following are each of the ActionBar.TabListener callbacks */
-
-		public void onTabSelected(Tab tab, FragmentTransaction ft) {
-			if (mFragment == null) {
-				mFragment = Fragment.instantiate(mActivity, mClass.getName());
-			}
-			ft.add(R.id.container, mFragment, mTag);
-		}
-
-		public void onTabUnselected(Tab tab, FragmentTransaction ft) {
-			if (mFragment != null) {
-				ft.remove(mFragment);
-			}
-		}
-
-		public void onTabReselected(Tab tab, FragmentTransaction ft) {
-			// User selected the already selected tab. Usually do nothing.
-		}
-	}
+            if (lhsDistance == rhsDistance) {
+                return 0;
+            }
+            return lhsDistance < rhsDistance ? -1 : 1;
+        }
+    }
 
 }

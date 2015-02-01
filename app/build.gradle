@@ -23,8 +23,7 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.android.support:appcompat-v7:21.0.3'
     compile project(':andxtidelib')
-    compile files('libs/GraphView-3.0.jar')
-    compile files('libs/mapsforge-map-0.3.0-PATCHED-jar-with-dependencies.jar')
-    compile files('libs/osmdroid-android-3.0.9.jar')
-    compile files('libs/slf4j-android-1.5.8.jar')
+    compile 'com.android.support:cardview-v7:21.0.3'
+    compile 'com.android.support:recyclerview-v7:21.0.3'
+    compile 'com.android.support:support-v13:21.0.3'
 }

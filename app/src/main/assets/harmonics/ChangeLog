@@ -1,0 +1,56 @@
+-*-text-*-
+
+2014-12-24
+
+   Imported NOS data from snapshot 2014-12-16.
+
+   Coordinates for reference stations had to be taken from a different page
+   this year.  Many stations have moved slightly.
+
+   The erratum for College Pt was removed because the meridian changed back.
+   The erratum for Fortescue Creek was removed because the tide table now is
+   consistent with the data.
+
+   The harmonics for St. Michael, Norton Sound, Alaska are in disagreement
+   with the subordinate station that is presently used for tide tables.
+   Higher high tide differs by approximately 1.5 hours.  The correct fix is
+   unclear; issue noted but no action.
+
+   The 2013 footnotes table was reused again without further checking.
+
+   Fixed time zone of Port Saint Joe again.
+
+   Fixed spelling of McCready's Creek.
+
+2013-12-28
+
+   Imported NOS data from snapshot 2013-12-10.
+
+   The following reference current stations no longer match NOS predictions
+   and have been expired along with all dependent subordinate stations:
+     Golden Gate Bridge, California Current (22d)
+     San Francisco Bay Entrance (outside), California Current
+     Key West, 0.3 mi. W of Ft. Taylor, Florida Current
+     Cape Cod Canal (railroad bridge), Massachusetts Current
+
+   Helmick Point added to errata for wrong meridian (thanks AED).
+
+   The 2014 currents web site no longer provides footnotes, but the code
+   still references them.  The 2013 footnotes table (from 2012-12 web scrape)
+   was reused.  A sampling of stations that referenced footnotes showed no
+   disagreement with the 2012 database.
+
+2012-12-24
+
+   Imported NOS data from snapshot 2012-12-22.
+   Expired:  Mobile Bay Entrance (off Mobile Point), Alabama Current.
+   Renamed several stations.
+
+2012-03-02
+
+   Imported up-to-date NOS harmonic constants for Golden Gate Bridge Current
+   contributed by August Hahn, plus the 78 dependent subordinate stations
+   from the web snapshot taken 2011-12-11.
+
+   Note:  Change history prior to 2012-03-02 continues in
+   http://www.flaterco.com/xtide/harmonics_boilerplate.txt.
