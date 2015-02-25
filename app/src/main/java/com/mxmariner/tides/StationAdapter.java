@@ -1,19 +1,17 @@
 package com.mxmariner.tides;
 
-import android.os.AsyncTask;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.ViewGroup;
 
-import com.mxmariner.andxtidelib.IStationData;
-import com.mxmariner.andxtidelib.Station;
+import com.mxmariner.andxtidelib.IRemoteStationData;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 
 public class StationAdapter extends RecyclerView.Adapter<StationAdapter.ViewHolder> {
     public static final String TAG = StationAdapter.class.getSimpleName();
 
-    private ArrayList<Station> stations;
+    private ArrayList<IRemoteStationData> stations;
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         public ViewHolder(StationCard v) {
@@ -21,7 +19,7 @@ public class StationAdapter extends RecyclerView.Adapter<StationAdapter.ViewHold
         }
     }
 
-    public StationAdapter(ArrayList<Station> stationList) {
+    public StationAdapter(ArrayList<IRemoteStationData> stationList) {
         stations = stationList;
     }
 
@@ -33,22 +31,8 @@ public class StationAdapter extends RecyclerView.Adapter<StationAdapter.ViewHold
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, final int i) {
         final StationCard card = (StationCard) viewHolder.itemView;
-        card.setCurrentIndex(i);
-        final IStationData data = stations.get(i).getDataForTime(Calendar.getInstance().getTime());
-        AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
-            @Override
-            protected Void doInBackground(Void... params) {
-                data.preLoad();
-                return null;
-            }
-
-            @Override
-            protected void onPostExecute(Void aVoid) {
-                super.onPostExecute(aVoid);
-                card.applyStationData(data, i);
-            }
-        };
-        task.execute();
+        IRemoteStationData remoteStationData = stations.get(i);
+        card.applyStationData(remoteStationData);
     }
 
 
@@ -59,6 +43,13 @@ public class StationAdapter extends RecyclerView.Adapter<StationAdapter.ViewHold
 
     @Override
     public void onViewRecycled(ViewHolder holder) {
+        final StationCard card = (StationCard) holder.itemView;
+        card.recycleView();
+        Log.d(TAG, "--------------onViewRecycled");
+        Log.d(TAG, "getPosition" + holder.getPosition());
+        Log.d(TAG, "getOldPosition" + holder.getOldPosition());
         super.onViewRecycled(holder);
     }
+
+
 }

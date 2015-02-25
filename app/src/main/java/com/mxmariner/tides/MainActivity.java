@@ -3,32 +3,45 @@ package com.mxmariner.tides;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.content.ComponentName;
 import android.content.Context;
-import android.location.Location;
-import android.location.LocationManager;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.IBinder;
+import android.os.RemoteException;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.ProgressBar;
 
 import com.mxmariner.andxtidelib.HarmonicsDatabase;
+import com.mxmariner.andxtidelib.HarmonicsDatabaseService;
+import com.mxmariner.andxtidelib.IHarmonicsDatabaseService;
+import com.mxmariner.andxtidelib.IRemoteServiceCallback;
+import com.mxmariner.andxtidelib.IRemoteStationData;
+import com.mxmariner.andxtidelib.LocationUtils;
 import com.mxmariner.andxtidelib.MXLatLng;
-import com.mxmariner.andxtidelib.Station;
+import com.mxmariner.andxtidelib.RemoteStationData;
 import com.mxmariner.util.MXTools;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
+import java.util.Calendar;
 
-public class MainActivity extends Activity implements HarmonicsDatabase.IHarmonicsDatabaseCallback {
+import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
+
+public class MainActivity extends Activity {
     public static final String TAG = MainActivity.class.getSimpleName();
 
     private RecyclerView recyclerView;
     private ProgressBar progressBar;
+    private MyServiceConnection mServiceConnection = new MyServiceConnection();
+    private IHarmonicsDatabaseService harmonicsDatabaseService;
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     @Override
@@ -47,72 +60,54 @@ public class MainActivity extends Activity implements HarmonicsDatabase.IHarmoni
         GridLayoutManager gridLayoutManager = new GridLayoutManager(getApplicationContext(), 1);
 
         recyclerView.setLayoutManager(gridLayoutManager);
-        //recyclerView.setItemAnimator(new DefaultItemAnimator());
 
-        String tcdName = "harmonics-dwf-20141224-free.tcd";
-        File tcd = new File(getFilesDir(), tcdName);
-
-        if (MXTools.copyAssetFile(getApplicationContext(), "harmonics/" + tcdName, tcd)) {
-            HarmonicsDatabase.createDatabaseAsync(tcd, this);
-        }
+        Intent serviceIntent = new Intent("com.mxmariner.andxtidelib.HarmonicsDatabaseService");
+        serviceIntent.setPackage("com.mxmariner.tides");
+        bindService(serviceIntent, mServiceConnection, Context.BIND_AUTO_CREATE);
     }
 
-    @Override
-    public void onInitiated(HarmonicsDatabase database) {
-        ArrayList<Station> stations = database.getTideStations();
-        Collections.sort(stations, new StationSorter());
-        StationAdapter adapter = new StationAdapter(stations);
-        recyclerView.setAdapter(adapter);
+    public void onHarmonicsDatabaseOpened(final IHarmonicsDatabaseService service) {
+        try {
+            service.loadDatabaseAsync(new IRemoteServiceCallback() {
+                @Override
+                public void onComplete(int result) throws RemoteException {
+                    MXLatLng position = LocationUtils.getLastKnownLocation(MainActivity.this);
+                    long[] ids = service.getClosestStations(position.getLatitude(), position.getLongitude(), 10);
+                    ArrayList<IRemoteStationData> stationDatas = new ArrayList<>(ids.length);
+                    long epoch = Calendar.getInstance().getTime().getTime() / 1000;
+                    for (long id : ids) {
+                        stationDatas.add(service.getDataForTime(id, epoch));
+                    }
+                    StationAdapter adapter = new StationAdapter(stationDatas);
+                    recyclerView.setAdapter(adapter);
+                }
+
+                @Override
+                public IBinder asBinder() {
+                    return null;
+                }
+            });
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
         progressBar.setVisibility(View.GONE);
         recyclerView.setVisibility(View.VISIBLE);
     }
-
-
-    private MXLatLng getLastKnownLocation() {
-        LocationManager pLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        final Location gpsLocation = getLastKnownLocation(pLocationManager, LocationManager.GPS_PROVIDER);
-        final Location networkLocation = getLastKnownLocation(pLocationManager, LocationManager.NETWORK_PROVIDER);
-        if (gpsLocation == null) {
-            return new MXLatLng(networkLocation);
-        } else if (networkLocation == null) {
-            return new MXLatLng(gpsLocation);
-        } else {
-            // both are non-null - use the most recent (+ delay for GPS)
-            if (networkLocation.getTime() > gpsLocation.getTime() + 3000) {
-                return new MXLatLng(networkLocation);
-            } else {
-                return new MXLatLng(gpsLocation);
-            }
+    
+    
+    
+    private class MyServiceConnection implements ServiceConnection {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            harmonicsDatabaseService = IHarmonicsDatabaseService.Stub.asInterface(service);
+            onHarmonicsDatabaseOpened(harmonicsDatabaseService);
         }
-    }
-
-    private Location getLastKnownLocation(LocationManager pLocationManager, String pProvider) {
-        try {
-            if (!pLocationManager.isProviderEnabled(pProvider)) {
-                return null;
-            }
-        } catch (final IllegalArgumentException e) {
-            return null;
-        }
-        return pLocationManager.getLastKnownLocation(pProvider);
-    }
-
-    class StationSorter implements Comparator<Station> {
-        MXLatLng position = getLastKnownLocation();
 
         @Override
-        public int compare(Station lhs, Station rhs) {
-            if (position == null) {
-                return 0;
-            }
-            int lhsDistance = lhs.getPosition().distanceToPoint(position);
-            int rhsDistance = rhs.getPosition().distanceToPoint(position);
-
-            if (lhsDistance == rhsDistance) {
-                return 0;
-            }
-            return lhsDistance < rhsDistance ? -1 : 1;
+        public void onServiceDisconnected(ComponentName name) {
+            harmonicsDatabaseService = null;
         }
     }
+    
 
 }
