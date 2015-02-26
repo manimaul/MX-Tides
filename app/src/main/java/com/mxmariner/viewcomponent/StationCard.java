@@ -1,14 +1,14 @@
-package com.mxmariner.tides;
+package com.mxmariner.viewcomponent;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.os.RemoteException;
 import android.support.v7.widget.CardView;
 import android.util.AttributeSet;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.mxmariner.andxtidelib.IRemoteStationData;
+import com.mxmariner.andxtidelib.remote.RemoteStationData;
+import com.mxmariner.tides.R;
 
 public class StationCard extends CardView {
 
@@ -40,30 +40,26 @@ public class StationCard extends CardView {
         detailsLayout = (LinearLayout) findViewById(R.id.station_card_details_container);
     }
 
-    public void applyStationData(final IRemoteStationData data) {
+    public void applyStationData(final RemoteStationData data) {
 
-        try {
-            nameTv.setText(data.getName());
-            dateTv.setText(data.getDataTimeStamp());
-            predictionTv.setText(data.getPrediction());
-            String[] plainData = data.getPlainData();
-            for (int i=1; i<plainData.length; i++) {
-                TextView tv = new TextView(getContext());
-                tv.setText(plainData[i].trim());
-                if (i % 2 != 0) {
-                    tv.setBackgroundColor(getResources().getColor(R.color.accent));
-                    tv.setTextColor(Color.WHITE);
-                } else {
-                    tv.setTextColor(getResources().getColor(R.color.secondary_text));
-                }
-                detailsLayout.addView(tv);
+        nameTv.setText(data.getName());
+        dateTv.setText(data.getDataTimeStamp());
+        predictionTv.setText(data.getPrediction());
+        String[] plainData = data.getPlainData();
+        for (int i = 1; i < plainData.length; i++) {
+            TextView tv = new TextView(getContext());
+            tv.setText(plainData[i].trim());
+            if (i % 2 != 0) {
+                tv.setBackgroundColor(getResources().getColor(R.color.accent));
+                tv.setTextColor(Color.WHITE);
+            } else {
+                tv.setTextColor(getResources().getColor(R.color.secondary_text));
             }
-        } catch (RemoteException e) {
-            e.printStackTrace();
+            detailsLayout.addView(tv);
         }
 
     }
-    
+
     public void recycleView() {
         nameTv.setText(null);
         dateTv.setText(null);

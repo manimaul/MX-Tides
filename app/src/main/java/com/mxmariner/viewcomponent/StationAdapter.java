@@ -1,17 +1,17 @@
-package com.mxmariner.tides;
+package com.mxmariner.viewcomponent;
 
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.ViewGroup;
 
-import com.mxmariner.andxtidelib.IRemoteStationData;
+import com.mxmariner.andxtidelib.remote.RemoteStationData;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public class StationAdapter extends RecyclerView.Adapter<StationAdapter.ViewHolder> {
     public static final String TAG = StationAdapter.class.getSimpleName();
 
-    private ArrayList<IRemoteStationData> stations;
+    private List<RemoteStationData> stations;
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         public ViewHolder(StationCard v) {
@@ -19,7 +19,7 @@ public class StationAdapter extends RecyclerView.Adapter<StationAdapter.ViewHold
         }
     }
 
-    public StationAdapter(ArrayList<IRemoteStationData> stationList) {
+    public StationAdapter(List<RemoteStationData> stationList) {
         stations = stationList;
     }
 
@@ -31,7 +31,7 @@ public class StationAdapter extends RecyclerView.Adapter<StationAdapter.ViewHold
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, final int i) {
         final StationCard card = (StationCard) viewHolder.itemView;
-        IRemoteStationData remoteStationData = stations.get(i);
+        RemoteStationData remoteStationData = stations.get(i);
         card.applyStationData(remoteStationData);
     }
 
