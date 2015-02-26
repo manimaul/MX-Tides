@@ -1,3 +1,9 @@
+non-ui
+=====
+DONE remove lib interfaces
+* service configurable units of measure
+* service tide graph bitmaps
+
 swipe menu
 =====
 * map - select 1
@@ -11,6 +17,6 @@ station fragment
 
 service
 =====
-* HarmonicsDatabase as service
-* IStation aidl
-* IStationData aidl
+DONE HarmonicsDatabase as service
+DONE IStation aidl
+DONE IStationData aidl

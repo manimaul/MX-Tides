@@ -13,27 +13,18 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.ProgressBar;
 
-import com.mxmariner.andxtidelib.HarmonicsDatabase;
-import com.mxmariner.andxtidelib.HarmonicsDatabaseService;
 import com.mxmariner.andxtidelib.IHarmonicsDatabaseService;
 import com.mxmariner.andxtidelib.IRemoteServiceCallback;
 import com.mxmariner.andxtidelib.IRemoteStationData;
-import com.mxmariner.andxtidelib.LocationUtils;
+import com.mxmariner.util.LocationUtils;
 import com.mxmariner.andxtidelib.MXLatLng;
-import com.mxmariner.andxtidelib.RemoteStationData;
-import com.mxmariner.util.MXTools;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
-
-import rx.Subscriber;
-import rx.android.schedulers.AndroidSchedulers;
 
 public class MainActivity extends Activity {
     public static final String TAG = MainActivity.class.getSimpleName();
@@ -68,25 +59,7 @@ public class MainActivity extends Activity {
 
     public void onHarmonicsDatabaseOpened(final IHarmonicsDatabaseService service) {
         try {
-            service.loadDatabaseAsync(new IRemoteServiceCallback() {
-                @Override
-                public void onComplete(int result) throws RemoteException {
-                    MXLatLng position = LocationUtils.getLastKnownLocation(MainActivity.this);
-                    long[] ids = service.getClosestStations(position.getLatitude(), position.getLongitude(), 10);
-                    ArrayList<IRemoteStationData> stationDatas = new ArrayList<>(ids.length);
-                    long epoch = Calendar.getInstance().getTime().getTime() / 1000;
-                    for (long id : ids) {
-                        stationDatas.add(service.getDataForTime(id, epoch));
-                    }
-                    StationAdapter adapter = new StationAdapter(stationDatas);
-                    recyclerView.setAdapter(adapter);
-                }
-
-                @Override
-                public IBinder asBinder() {
-                    return null;
-                }
-            });
+            service.loadDatabaseAsync(new ServiceCallback(service));
         } catch (RemoteException e) {
             e.printStackTrace();
         }
@@ -94,7 +67,27 @@ public class MainActivity extends Activity {
         recyclerView.setVisibility(View.VISIBLE);
     }
     
-    
+    private class ServiceCallback extends IRemoteServiceCallback.Stub {
+
+        private final IHarmonicsDatabaseService service;
+
+        private ServiceCallback(IHarmonicsDatabaseService service) {
+            this.service = service;
+        }
+
+        @Override
+        public void onComplete(int result) throws RemoteException {
+            MXLatLng position = LocationUtils.getLastKnownLocation(MainActivity.this);
+            long[] ids = service.getClosestStations(position.getLatitude(), position.getLongitude(), 10);
+            ArrayList<IRemoteStationData> stationDatas = new ArrayList<>(ids.length);
+            long epoch = Calendar.getInstance().getTime().getTime() / 1000;
+            for (long id : ids) {
+                stationDatas.add(service.getDataForTime(id, epoch));
+            }
+            StationAdapter adapter = new StationAdapter(stationDatas, position);
+            recyclerView.setAdapter(adapter);
+        }
+    }
     
     private class MyServiceConnection implements ServiceConnection {
         @Override
