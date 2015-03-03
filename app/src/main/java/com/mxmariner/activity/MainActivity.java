@@ -24,18 +24,108 @@ import com.mxmariner.tides.R;
 import com.squareup.otto.Subscribe;
 
 public class MainActivity extends Activity {
+
+    //region CLASS VARIABLES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
     public static final String TAG = MainActivity.class.getSimpleName();
 
-    //region FIELDS ********************************************************************************
+    //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+    //region CLASS METHODS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+    //region FIELDS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle actionBarDrawerToggle;
     private FragmentId currentFragmentId = null;
     private FragmentId pendingId = null;
 
-    //endregion ************************************************************************************
+    //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    //region LIFE CYCLE ****************************************************************************
+
+    //region CONSTRUCTOR ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+    //region ACCESSORS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+    //region PRIVATE METHODS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+    //region PUBLIC METHODS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+    //region INNER CLASSES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    //region EVENTS  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    @SuppressWarnings("UnusedDeclaration")
+    @Subscribe
+    public void onDrawerMenuEvent(DrawerMenuEvent event) {
+        switch (event) {
+            case CloseTideStations: {
+                pendingId = FragmentId.StationCardRecyclerFragmentTides;
+                drawerLayout.closeDrawer(Gravity.START);
+                break;
+            }
+            case CloseCurrentStations: {
+                pendingId = FragmentId.StationCardRecyclerFragmentCurrents;
+                drawerLayout.closeDrawer(Gravity.START);
+                break;
+            }
+            case Map: {
+                drawerLayout.closeDrawer(Gravity.START);
+                break;
+            }
+            case Harmonics: {
+                drawerLayout.closeDrawer(Gravity.START);
+                break;
+            }
+            case Settings: {
+                getFragmentManager()
+                        .beginTransaction()
+                        .setCustomAnimations(R.animator.slide_in_left, R.animator.slide_out_right,
+                                R.animator.slide_in_right, R.animator.slide_out_left)
+                        .replace(R.id.left_drawer, new DrawerSettingsFragment())
+                        .addToBackStack(null)
+                        .commit();
+                break;
+            }
+            case SettingsDone: {
+                getFragmentManager()
+                        .popBackStack();
+                break;
+            }
+            case About: {
+                drawerLayout.closeDrawer(Gravity.START);
+                break;
+            }
+        }
+    }
+
+    //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+    /*~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^
+                                               ANDROID
+    ~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^*/
+
+
+    //region LIFE CYCLE ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     @Override
@@ -98,8 +188,8 @@ public class MainActivity extends Activity {
             if (mxFragment != null) {
                 getFragmentManager()
                         .beginTransaction()
-                        .setCustomAnimations(R.animator.slide_in_left, R.animator.slide_out_right,
-                                R.animator.slide_in_right, R.animator.slide_out_left)
+                        .setCustomAnimations(R.animator.fade_in, R.animator.fade_out,
+                                R.animator.fade_in, R.animator.fade_out)
                         .replace(R.id.activity_main_fragment_container, mxFragment)
                         .commit();
                 currentFragmentId = fragmentId;
@@ -111,9 +201,10 @@ public class MainActivity extends Activity {
         }
     }
 
-    //endregion ************************************************************************************
+    //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    //region LISTENERS *****************************************************************************
+
+    //region LISTENERS  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     private class ActionBarDrawerListener extends ActionBarDrawerToggle {
         private ActionBarDrawerListener() {
@@ -146,54 +237,7 @@ public class MainActivity extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
-    //endregion ************************************************************************************
+    //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    //region EVENTS  *******************************************************************************
-
-    @SuppressWarnings("UnusedDeclaration")
-    @Subscribe
-    public void onDrawerMenuEvent(DrawerMenuEvent event) {
-        switch (event) {
-            case CloseTideStations: {
-                pendingId = FragmentId.StationCardRecyclerFragmentTides;
-                drawerLayout.closeDrawer(Gravity.START);
-                break;
-            }
-            case CloseCurrentStations: {
-                pendingId = FragmentId.StationCardRecyclerFragmentCurrents;
-                drawerLayout.closeDrawer(Gravity.START);
-                break;
-            }
-            case Map: {
-                drawerLayout.closeDrawer(Gravity.START);
-                break;
-            }
-            case Harmonics: {
-                drawerLayout.closeDrawer(Gravity.START);
-                break;
-            }
-            case Settings: {
-                getFragmentManager()
-                        .beginTransaction()
-                        .setCustomAnimations(R.animator.slide_in_left, R.animator.slide_out_right,
-                                R.animator.slide_in_right, R.animator.slide_out_left)
-                        .replace(R.id.left_drawer, new DrawerSettingsFragment())
-                        .addToBackStack(null)
-                        .commit();
-                break;
-            }
-            case SettingsDone: {
-                getFragmentManager()
-                        .popBackStack();
-                break;
-            }
-            case About: {
-                drawerLayout.closeDrawer(Gravity.START);
-                break;
-            }
-        }
-    }
-
-    //endregion ************************************************************************************
 
 }

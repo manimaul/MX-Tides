@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="unit_option_statute">Statute</string>
+    /*default*/
+    <string name="unit_option_metric">Metric</string>
+    <string-array name="unit_options">
+        <item>@string/unit_option_statute</item>
+        <item>@string/unit_option_metric</item>
+    </string-array>
+
+    <string name="station_count_default">10</string>
+    <string-array name="station_count_options">
+        <item>1</item>
+        <item>3</item>
+        <item>5</item>
+        <item>@string/station_count_default</item>
+        <item>15</item>
+        <item>30</item>
+    </string-array>
+
+</resources>

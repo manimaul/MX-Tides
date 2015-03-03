@@ -1,19 +1,48 @@
-package com.mxmariner.viewcomponent;
+non-ui
+=====
+DONE remove lib interfaces
+* service configurable units of measure
+* service tide graph bitmaps
+* open arbitrary (user) tcd files
 
-import android.content.Context;
-import android.graphics.Color;
-import android.support.v7.widget.CardView;
-import android.util.AttributeSet;
-import android.widget.LinearLayout;
-import android.widget.TextView;
+swipe menu
+=====
+* (nested fragment)
+* closest 10 - cardview - select 1
+    * scroll animated label "Closest 10 Stations"
+* map - select 1
+* harmonics db
+    - select tcd
+    - tcd / db info
+* about
+* settings fragment transaction inside menu
 
-import com.mxmariner.andxtidelib.remote.RemoteStationData;
-import com.mxmariner.tides.R;
+settings
+=====
+nearby stations spinner
+units spinner
 
-public class StationCard extends CardView {
+actionbar
+=====
+* search - select 1
+
+
+station fragment
+=====
+* viewpager for dates
+* scrollable graph
+
+service
+=====
+DONE HarmonicsDatabase as service
+DONE IStation aidl
+DONE IStationData aidl
+
+
+```
 
     //region CLASS VARIABLES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
+    
     //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
@@ -24,38 +53,10 @@ public class StationCard extends CardView {
 
     //region FIELDS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    private TextView nameTv;
-    private TextView dateTv;
-    private TextView predictionTv;
-    private LinearLayout detailsLayout;
-
     //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
     //region CONSTRUCTOR ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    public StationCard(Context context) {
-        super(context);
-        init();
-    }
-
-    public StationCard(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        init();
-    }
-
-    public StationCard(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
-        init();
-    }
-
-    private void init() {
-        inflate(getContext(), R.layout.station_card, this);
-        nameTv = (TextView) findViewById(R.id.station_card_station_name);
-        dateTv = (TextView) findViewById(R.id.station_card_station_datetime);
-        predictionTv = (TextView) findViewById(R.id.station_card_station_prediction);
-        detailsLayout = (LinearLayout) findViewById(R.id.station_card_details_container);
-    }
 
     //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -72,43 +73,16 @@ public class StationCard extends CardView {
 
     //region PUBLIC METHODS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    public void applyStationData(final RemoteStationData data) {
-
-        nameTv.setText(data.getName());
-        dateTv.setText(data.getDataTimeStamp());
-        predictionTv.setText(data.getPrediction());
-        String[] plainData = data.getPlainData();
-        for (int i = 1; i < plainData.length; i++) {
-            TextView tv = new TextView(getContext());
-            tv.setText(plainData[i].trim());
-            if (i % 2 != 0) {
-                tv.setBackgroundColor(getResources().getColor(R.color.accent));
-                tv.setTextColor(Color.WHITE);
-            } else {
-                tv.setTextColor(getResources().getColor(R.color.secondary_text));
-            }
-            detailsLayout.addView(tv);
-        }
-
-    }
-
-    public void recycleView() {
-        nameTv.setText(null);
-        dateTv.setText(null);
-        predictionTv.setText(null);
-        detailsLayout.removeAllViews();
-    }
-
     //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
     //region INNER CLASSES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
+    
+    
     //region EVENTS  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
+    
     //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
@@ -120,16 +94,15 @@ public class StationCard extends CardView {
     //region LIFE CYCLE ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
+    
+    
     //region IMPLEMENTATION  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
+    
     //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
     //region LISTENERS  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-}
+        
+```

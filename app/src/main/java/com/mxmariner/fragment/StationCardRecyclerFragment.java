@@ -34,12 +34,31 @@ import java.util.Comparator;
 import java.util.List;
 
 public class StationCardRecyclerFragment extends MXFragment {
+
+    //region CLASS VARIABLES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    
     public static final String TAG = StationCardRecyclerFragment.class.getSimpleName();
+
+    //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+    //region CLASS METHODS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+    //region FIELDS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     private MyServiceConnection mServiceConnection = new MyServiceConnection();
     private IHarmonicsDatabaseService harmonicsDatabaseService;
     private RecyclerView recyclerView;
     private ProgressBar progressBar;
+    private Context context;
+
+    //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+    //region CONSTRUCTOR ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     public static StationCardRecyclerFragment createFragment(FragmentId fragmentId) {
         StationCardRecyclerFragment fragment = new StationCardRecyclerFragment();
@@ -49,47 +68,33 @@ public class StationCardRecyclerFragment extends MXFragment {
         return fragment;
     }
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-        Intent serviceIntent = new Intent("com.mxmariner.andxtidelib.HarmonicsDatabaseService");
-        serviceIntent.setPackage("com.mxmariner.tides");
-        getActivity().bindService(serviceIntent, mServiceConnection, Context.BIND_AUTO_CREATE);
-    }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.station_card_recycler_fragment_layout, container, false);
-        recyclerView = (RecyclerView) v.findViewById(R.id.station_card_recycler_fragment_rv);
-        progressBar = (ProgressBar) v.findViewById(R.id.station_card_recycler_fragment_pb);
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 1);
+    //region ACCESSORS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-        recyclerView.setLayoutManager(gridLayoutManager);
-        return v;
-    }
+    //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    @Override
-    public void onDestroy() {
-        getActivity().unbindService(mServiceConnection);
-        super.onDestroy();
-    }
 
-    //region PRIVATE METHODS ***********************************************************************
+    //region PRIVATE METHODS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     private void getStationDataAsync(final IHarmonicsDatabaseService service, final StationType type) {
         AsyncTask<Void, Void, List<RemoteStationData>> task = new AsyncTask<Void, Void, List<RemoteStationData>>() {
             @Override
             protected List<RemoteStationData> doInBackground(Void... params) {
                 Log.d(TAG, "getStationDataAsync()");
-                MXLatLng position = LocationUtils.getLastKnownLocation(getActivity());
+                MXLatLng position = LocationUtils.getLastKnownLocation(context);
                 List<RemoteStationData> stationDatas = null;
                 try {
                     List<RemoteStation> remoteStations = service.getClosestStations(type, position.getLatitude(), position.getLongitude(), 10);
                     stationDatas = new ArrayList<>(remoteStations.size());
                     long epoch = Calendar.getInstance().getTime().getTime() / 1000;
-                    for (RemoteStation station : remoteStations) {
-                        stationDatas.add(service.getDataForTime(station.getStationId(), epoch));
+                    RemoteStationData rsd;
+                    for (RemoteStation rs : remoteStations) {
+                        rsd = service.getDataForTime(rs.getStationId(), epoch);
+                        if (rsd != null) {
+                            stationDatas.add(rsd);
+                        }
                     }
                     Log.d(TAG, "sorting station data");
                     Collections.sort(stationDatas, new StationSorter(position));
@@ -106,9 +111,11 @@ public class StationCardRecyclerFragment extends MXFragment {
                 if (results != null) {
                     StationAdapter adapter = new StationAdapter(results);
 
-                    recyclerView.setVisibility(View.VISIBLE);
-                    progressBar.setVisibility(View.GONE);
-                    recyclerView.setAdapter(adapter);
+                    if (recyclerView != null && progressBar != null) {
+                        recyclerView.setVisibility(View.VISIBLE);
+                        progressBar.setVisibility(View.GONE);
+                        recyclerView.setAdapter(adapter);
+                    }
                 } else {
                     //todo: handle error ui
                 }
@@ -126,15 +133,15 @@ public class StationCardRecyclerFragment extends MXFragment {
         }
     }
 
-    //endregion ************************************************************************************
-
-    @Override
-    public FragmentId getFragmentId() {
-        return (FragmentId) getArguments().getSerializable(FragmentId.class.getSimpleName());
-    }
+    //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-    //region INNER CLASSES *************************************************************************
+    //region PUBLIC METHODS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+    //region INNER CLASSES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     private class ServiceCallback extends IRemoteServiceCallback.Stub {
 
@@ -208,5 +215,65 @@ public class StationCardRecyclerFragment extends MXFragment {
         }
     }
 
-    //endregion ************************************************************************************
+    //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+    //region EVENTS  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+    /*~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^
+                                               ANDROID
+    ~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^*/
+
+
+    //region LIFE CYCLE ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        context = getActivity().getApplicationContext();
+
+        Intent serviceIntent = new Intent("com.mxmariner.andxtidelib.HarmonicsDatabaseService");
+        serviceIntent.setPackage("com.mxmariner.tides");
+        context.bindService(serviceIntent, mServiceConnection, Context.BIND_AUTO_CREATE);
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View v = inflater.inflate(R.layout.station_card_recycler_fragment_layout, container, false);
+        recyclerView = (RecyclerView) v.findViewById(R.id.station_card_recycler_fragment_rv);
+        progressBar = (ProgressBar) v.findViewById(R.id.station_card_recycler_fragment_pb);
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 1);
+
+        recyclerView.setLayoutManager(gridLayoutManager);
+        return v;
+    }
+
+    @Override
+    public void onDestroy() {
+        context.unbindService(mServiceConnection);
+        super.onDestroy();
+    }
+
+    //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+    //region IMPLEMENTATION  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    @Override
+    public FragmentId getFragmentId() {
+        return (FragmentId) getArguments().getSerializable(FragmentId.class.getSimpleName());
+    }
+
+    //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+    //region LISTENERS  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 }
