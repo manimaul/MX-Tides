@@ -1,5 +1,6 @@
 package com.mxmariner.fragment;
 
+import android.app.ActionBar;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -25,6 +26,7 @@ import com.mxmariner.andxtidelib.remote.StationType;
 import com.mxmariner.tides.MXLogger;
 import com.mxmariner.tides.R;
 import com.mxmariner.util.LocationUtils;
+import com.mxmariner.util.MXPreferences;
 import com.mxmariner.viewcomponent.StationAdapter;
 
 import java.util.ArrayList;
@@ -33,10 +35,10 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-public class StationCardRecyclerFragment extends MXFragment {
+public class StationCardRecyclerFragment extends MXMainFragment {
 
     //region CLASS VARIABLES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    
+
     public static final String TAG = StationCardRecyclerFragment.class.getSimpleName();
 
     //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -54,6 +56,9 @@ public class StationCardRecyclerFragment extends MXFragment {
     private RecyclerView recyclerView;
     private ProgressBar progressBar;
     private Context context;
+    private MXPreferences mxPreferences;
+    private StationAdapter stationAdapter = new StationAdapter();
+    private int stationCardCount;
 
     //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -86,7 +91,7 @@ public class StationCardRecyclerFragment extends MXFragment {
                 MXLatLng position = LocationUtils.getLastKnownLocation(context);
                 List<RemoteStationData> stationDatas = null;
                 try {
-                    List<RemoteStation> remoteStations = service.getClosestStations(type, position.getLatitude(), position.getLongitude(), 10);
+                    List<RemoteStation> remoteStations = service.getClosestStations(type, position.getLatitude(), position.getLongitude(), stationCardCount);
                     stationDatas = new ArrayList<>(remoteStations.size());
                     long epoch = Calendar.getInstance().getTime().getTime() / 1000;
                     RemoteStationData rsd;
@@ -109,12 +114,11 @@ public class StationCardRecyclerFragment extends MXFragment {
             protected void onPostExecute(List<RemoteStationData> results) {
                 super.onPostExecute(results);
                 if (results != null) {
-                    StationAdapter adapter = new StationAdapter(results);
 
                     if (recyclerView != null && progressBar != null) {
                         recyclerView.setVisibility(View.VISIBLE);
                         progressBar.setVisibility(View.GONE);
-                        recyclerView.setAdapter(adapter);
+                        stationAdapter.setStationDataAndInvalidate(results);
                     }
                 } else {
                     //todo: handle error ui
@@ -130,6 +134,19 @@ public class StationCardRecyclerFragment extends MXFragment {
             service.loadDatabaseAsync(new ServiceCallback(service));
         } catch (RemoteException e) {
             MXLogger.e(TAG, "onHarmonicsDatabaseOpened()", e);
+            //todo: handle error ui
+        }
+    }
+
+    @Override
+    public void setupActionBarTitle() {
+        if (getActivity() != null) {
+            ActionBar actionBar = getActivity().getActionBar();
+            if (actionBar != null) {
+                int id = getStationType() == StationType.STATION_TYPE_TIDE ? R.string.closest_tide_stations : R.string.closest_current_stations;
+                int numStations = mxPreferences.getNumberOfStationCardsPref();
+                actionBar.setSubtitle(numStations + " " + getString(id));
+            }
         }
     }
 
@@ -142,6 +159,14 @@ public class StationCardRecyclerFragment extends MXFragment {
 
 
     //region INNER CLASSES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    private StationType getStationType() {
+        if (getFragmentId() == FragmentId.STATION_CARD_RECYCLER_FRAGMENT_TIDES) {
+            return StationType.STATION_TYPE_TIDE;
+        } else {
+            return StationType.STATION_TYPE_CURRENT;
+        }
+    }
 
     private class ServiceCallback extends IRemoteServiceCallback.Stub {
 
@@ -156,13 +181,7 @@ public class StationCardRecyclerFragment extends MXFragment {
 
             if (result == 0) {
                 Log.d(TAG, "ServiceCallback onComplete()");
-                StationType type;
-                if (getFragmentId() == FragmentId.StationCardRecyclerFragmentTides) {
-                    type = StationType.STATION_TYPE_TIDE;
-                } else {
-                    type = StationType.STATION_TYPE_CURRENT;
-                }
-                getStationDataAsync(service, type);
+                getStationDataAsync(service, getStationType());
             } else {
                 Log.e(TAG, "HarmonicsDatabaseService async load result error code: " + result);
                 //todo: handle error ui
@@ -235,6 +254,8 @@ public class StationCardRecyclerFragment extends MXFragment {
         super.onCreate(savedInstanceState);
 
         context = getActivity().getApplicationContext();
+        mxPreferences = new MXPreferences(context);
+        stationCardCount = mxPreferences.getNumberOfStationCardsPref();
 
         Intent serviceIntent = new Intent("com.mxmariner.andxtidelib.HarmonicsDatabaseService");
         serviceIntent.setPackage("com.mxmariner.tides");
@@ -249,6 +270,8 @@ public class StationCardRecyclerFragment extends MXFragment {
         GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 1);
 
         recyclerView.setLayoutManager(gridLayoutManager);
+        recyclerView.setAdapter(stationAdapter);
+        setupActionBarTitle();
         return v;
     }
 
@@ -266,6 +289,17 @@ public class StationCardRecyclerFragment extends MXFragment {
     @Override
     public FragmentId getFragmentId() {
         return (FragmentId) getArguments().getSerializable(FragmentId.class.getSimpleName());
+    }
+
+    @Override
+    public void invalidate() {
+        if (harmonicsDatabaseService != null && mxPreferences.getNumberOfStationCardsPref() != stationCardCount) {
+            stationCardCount = mxPreferences.getNumberOfStationCardsPref();
+            recyclerView.setVisibility(View.GONE);
+            progressBar.setVisibility(View.VISIBLE);
+            getStationDataAsync(harmonicsDatabaseService, getStationType());
+            setupActionBarTitle();
+        }
     }
 
     //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -3,6 +3,7 @@ package com.mxmariner.activity;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.Fragment;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
@@ -16,11 +17,16 @@ import android.view.Window;
 
 import com.mxmariner.bus.DrawerMenuEvent;
 import com.mxmariner.bus.EventBus;
+import com.mxmariner.fragment.DrawerAboutFragment;
+import com.mxmariner.fragment.DrawerFragment;
+import com.mxmariner.fragment.DrawerHarmonicsFragment;
 import com.mxmariner.fragment.DrawerSettingsFragment;
 import com.mxmariner.fragment.FragmentId;
-import com.mxmariner.fragment.MXFragment;
+import com.mxmariner.fragment.MXMainFragment;
+import com.mxmariner.fragment.MXTideMapFragment;
 import com.mxmariner.fragment.StationCardRecyclerFragment;
 import com.mxmariner.tides.R;
+import com.mxmariner.util.MXPreferences;
 import com.squareup.otto.Subscribe;
 
 public class MainActivity extends Activity {
@@ -41,8 +47,8 @@ public class MainActivity extends Activity {
 
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle actionBarDrawerToggle;
-    private FragmentId currentFragmentId = null;
     private FragmentId pendingId = null;
+    private MXPreferences mxPreferences;
 
     //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -58,6 +64,53 @@ public class MainActivity extends Activity {
 
 
     //region PRIVATE METHODS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    private void navigateToMenuFragment(Fragment menuFragment, String backStackName) {
+        getFragmentManager()
+                .beginTransaction()
+                .setCustomAnimations(R.animator.slide_in_left, R.animator.slide_out_right,
+                        R.animator.slide_in_right, R.animator.slide_out_left)
+                .replace(R.id.left_drawer, menuFragment)
+                .addToBackStack(backStackName)
+                .commit();
+    }
+
+    private MXMainFragment navigateToMainFragmentWithId(FragmentId fragmentId, boolean enforce) {
+        MXMainFragment mxMainFragment = null;
+        if (enforce || mxPreferences.getMainFragmentId() != fragmentId) {
+            switch (fragmentId) {
+                case STATION_CARD_RECYCLER_FRAGMENT_TIDES: {
+                    mxMainFragment = StationCardRecyclerFragment.createFragment(fragmentId);
+                    break;
+                }
+
+                case STATION_CARD_RECYCLER_FRAGMENT_CURRENTS: {
+                    mxMainFragment = StationCardRecyclerFragment.createFragment(fragmentId);
+                    break;
+                }
+
+                case MAP_FRAGMENT: {
+                    mxMainFragment = MXTideMapFragment.createFragment(fragmentId);
+                    break;
+                }
+            }
+
+            if (mxMainFragment != null) {
+                getFragmentManager()
+                        .beginTransaction()
+                        .setCustomAnimations(R.animator.fade_in, R.animator.fade_out,
+                                R.animator.fade_in, R.animator.fade_out)
+                        .replace(R.id.activity_main_fragment_container, mxMainFragment, MXMainFragment.TAG)
+                        .commit();
+                mxPreferences.setMainFragmentId(fragmentId);
+            } else {
+                Log.e(TAG, "navigateToMainFragmentWithId() fragment was null!");
+            }
+        } else {
+            Log.d(TAG, "navigateToMainFragmentWithId() already at target fragment");
+        }
+        return mxMainFragment;
+    }
 
     //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -77,41 +130,44 @@ public class MainActivity extends Activity {
     @Subscribe
     public void onDrawerMenuEvent(DrawerMenuEvent event) {
         switch (event) {
-            case CloseTideStations: {
-                pendingId = FragmentId.StationCardRecyclerFragmentTides;
+            case CLOSE_TIDE_STATIONS: {
+                pendingId = FragmentId.STATION_CARD_RECYCLER_FRAGMENT_TIDES;
                 drawerLayout.closeDrawer(Gravity.START);
                 break;
             }
-            case CloseCurrentStations: {
-                pendingId = FragmentId.StationCardRecyclerFragmentCurrents;
+            case CLOSE_CURRENT_STATIONS: {
+                pendingId = FragmentId.STATION_CARD_RECYCLER_FRAGMENT_CURRENTS;
                 drawerLayout.closeDrawer(Gravity.START);
                 break;
             }
-            case Map: {
+            case MAP: {
+                pendingId = FragmentId.MAP_FRAGMENT;
                 drawerLayout.closeDrawer(Gravity.START);
                 break;
             }
-            case Harmonics: {
-                drawerLayout.closeDrawer(Gravity.START);
+            case HARMONICS: {
+                navigateToMenuFragment(new DrawerHarmonicsFragment(), null);
                 break;
             }
-            case Settings: {
-                getFragmentManager()
-                        .beginTransaction()
-                        .setCustomAnimations(R.animator.slide_in_left, R.animator.slide_out_right,
-                                R.animator.slide_in_right, R.animator.slide_out_left)
-                        .replace(R.id.left_drawer, new DrawerSettingsFragment())
-                        .addToBackStack(null)
-                        .commit();
+            case SETTINGS: {
+                navigateToMenuFragment(new DrawerSettingsFragment(), DrawerSettingsFragment.TAG);
                 break;
             }
-            case SettingsDone: {
+            case SETTINGS_DONE: {
                 getFragmentManager()
                         .popBackStack();
+                MXMainFragment mxMainFragment = (MXMainFragment) getFragmentManager().findFragmentByTag(MXMainFragment.TAG);
+                if (mxMainFragment != null) {
+                    mxMainFragment.invalidate();
+                }
+                DrawerFragment drawerFragment = (DrawerFragment) getFragmentManager().findFragmentByTag("DrawerFragment");
+                if (drawerFragment != null) {
+                    drawerFragment.invalidate();
+                }
                 break;
             }
-            case About: {
-                drawerLayout.closeDrawer(Gravity.START);
+            case ABOUT: {
+                navigateToMenuFragment(new DrawerAboutFragment(), null);
                 break;
             }
         }
@@ -148,7 +204,8 @@ public class MainActivity extends Activity {
 
         EventBus.getInstance().register(this);
 
-        navigateToFragmentWithId(FragmentId.StationCardRecyclerFragmentTides);
+        mxPreferences = new MXPreferences(getApplicationContext());
+        navigateToMainFragmentWithId(mxPreferences.getMainFragmentId(), true);
     }
 
     @Override
@@ -170,36 +227,10 @@ public class MainActivity extends Activity {
         super.onDestroy();
     }
 
-    public void navigateToFragmentWithId(FragmentId fragmentId) {
-        if (currentFragmentId != fragmentId) {
-            MXFragment mxFragment = null;
-            switch (fragmentId) {
-                case StationCardRecyclerFragmentTides: {
-                    mxFragment = StationCardRecyclerFragment.createFragment(fragmentId);
-                    break;
-                }
+    //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-                case StationCardRecyclerFragmentCurrents: {
-                    mxFragment = StationCardRecyclerFragment.createFragment(fragmentId);
-                    break;
-                }
-            }
 
-            if (mxFragment != null) {
-                getFragmentManager()
-                        .beginTransaction()
-                        .setCustomAnimations(R.animator.fade_in, R.animator.fade_out,
-                                R.animator.fade_in, R.animator.fade_out)
-                        .replace(R.id.activity_main_fragment_container, mxFragment)
-                        .commit();
-                currentFragmentId = fragmentId;
-            } else {
-                Log.e(TAG, "navigateToFragmentWithId() fragment was null!");
-            }
-        } else {
-            Log.d(TAG, "navigateToFragmentWithId() already at target fragment");
-        }
-    }
+    //region IMPLEMENTATION  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -215,8 +246,9 @@ public class MainActivity extends Activity {
         @Override
         public void onDrawerClosed(View drawerView) {
             super.onDrawerClosed(drawerView);
+
             if (pendingId != null) {
-                navigateToFragmentWithId(pendingId);
+                navigateToMainFragmentWithId(pendingId, false);
                 pendingId = null;
             }
         }

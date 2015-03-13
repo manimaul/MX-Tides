@@ -7,7 +7,8 @@ DONE remove lib interfaces
 
 swipe menu
 =====
-* (nested fragment)
+DONE * (nested fragment)
+* cover actionbar
 * closest 10 - cardview - select 1
     * scroll animated label "Closest 10 Stations"
 * map - select 1

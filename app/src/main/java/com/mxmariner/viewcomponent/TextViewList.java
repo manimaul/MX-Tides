@@ -1,19 +1,16 @@
 package com.mxmariner.viewcomponent;
 
-import android.support.v7.widget.RecyclerView;
-import android.view.ViewGroup;
+import android.content.Context;
+import android.util.AttributeSet;
+import android.view.ContextThemeWrapper;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
-import com.mxmariner.andxtidelib.remote.RemoteStationData;
+import com.mxmariner.tides.R;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
-public class StationAdapter extends RecyclerView.Adapter<StationAdapter.ViewHolder> {
+public class TextViewList extends LinearLayout {
 
     //region CLASS VARIABLES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    public static final String TAG = StationAdapter.class.getSimpleName();
 
     //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -25,14 +22,31 @@ public class StationAdapter extends RecyclerView.Adapter<StationAdapter.ViewHold
 
     //region FIELDS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    private List<RemoteStationData> stations = new ArrayList<>();
-
     //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
     //region CONSTRUCTOR ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    public StationAdapter() {
+    public TextViewList(Context context) {
+        super(context);
+        init();
+    }
+
+    public TextViewList(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        init();
+    }
+
+    public TextViewList(Context context, AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+        init();
+    }
+
+    private void init() {
+        setBackgroundResource(R.drawable.border_rect);
+        if (isInEditMode()) {
+            addTextViewsWithStrings(new String[]{"", "some", "sample", "data", "for", "you"});
+        }
     }
 
     //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -50,22 +64,28 @@ public class StationAdapter extends RecyclerView.Adapter<StationAdapter.ViewHold
 
     //region PUBLIC METHODS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    public void setStationDataAndInvalidate(Collection<RemoteStationData> stationData) {
-        stations.clear();
-        stations.addAll(stationData);
-        notifyDataSetChanged();
+    /**
+     * @param strings array of strings to add as TextViews (first string skipped)
+     */
+    public void addTextViewsWithStrings(String[] strings) {
+        for (int i = 1; i < strings.length; i++) {
+
+            final int styleId;
+            if (i % 2 != 0) {
+                styleId = R.style.DetailOdd;
+            } else {
+                styleId = R.style.DetailEven;
+            }
+            TextView tv = new TextView(new ContextThemeWrapper(getContext(), styleId), null, 0);
+            tv.setText(strings[i].trim());
+            addView(tv);
+        }
     }
 
     //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
     //region INNER CLASSES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    public static class ViewHolder extends RecyclerView.ViewHolder {
-        public ViewHolder(StationCard v) {
-            super(v);
-        }
-    }
 
     //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -87,36 +107,12 @@ public class StationAdapter extends RecyclerView.Adapter<StationAdapter.ViewHold
 
     //region IMPLEMENTATION  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    @Override
-    public void onBindViewHolder(ViewHolder viewHolder, final int i) {
-        final StationCard card = (StationCard) viewHolder.itemView;
-        RemoteStationData remoteStationData = stations.get(i);
-        card.applyStationData(remoteStationData);
-    }
-
-    @Override
-    public int getItemCount() {
-        return stations.size();
-    }
-
-
-    @Override
-    public void onViewRecycled(ViewHolder holder) {
-        final StationCard card = (StationCard) holder.itemView;
-        card.recycleView();
-        super.onViewRecycled(holder);
-    }
-
-    @Override
-
-    public ViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
-        return new ViewHolder(new StationCard(viewGroup.getContext()));
-    }
-
     //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
     //region LISTENERS  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 }

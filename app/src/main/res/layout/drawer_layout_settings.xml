@@ -1,69 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="240dp"
-    android:layout_height="match_parent"
-    android:background="@color/white"
-    android:fillViewport="false">
+            android:layout_width="240dp"
+            android:layout_height="match_parent"
+            android:background="@color/white"
+            android:fillViewport="false">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <ImageView
-            android:layout_width="240dp"
-            android:layout_height="178dp"
-            android:src="@drawable/xs" />
-
         <Button
+            style="@style/DrawerMenuActionButton"
             android:id="@+id/drawer_layout_settings_done_btn"
-            android:layout_width="wrap_content"
-            android:layout_margin="4dp"
+            android:layout_width="match_parent"
+            android:padding="4dp"
             android:layout_height="wrap_content"
-            android:text="Done" />
+            android:text="Done"/>
 
         <View
+            style="@style/Divider"
             android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/primary_text" />
+            android:layout_height="match_parent"/>
 
         <TextView
-            android:layout_width="wrap_content"
+            style="@style/Header"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:layout_marginLeft="4dp"
-            android:text="Units of measure" />
+            android:text="Units of measure"/>
 
         <Spinner
             android:id="@+id/drawer_layout_settings_units_spn"
             android:layout_width="match_parent"
             android:layout_height="44dp"
             android:spinnerMode="dropdown"
-            android:entries="@array/unit_options" />
+            android:entries="@array/unit_options"/>
 
         <View
+            style="@style/Divider"
             android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/primary_text" />
+            android:layout_height="match_parent"/>
 
         <TextView
-            android:layout_width="wrap_content"
+            style="@style/Header"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:layout_marginLeft="4dp"
-            android:text="Number of station cards" />
+            android:text="Number of station cards"/>
 
         <Spinner
             android:id="@+id/drawer_layout_settings_card_num_spn"
             android:layout_width="match_parent"
             android:layout_height="44dp"
             android:spinnerMode="dropdown"
-            android:entries="@array/station_count_options" />
+            android:entries="@array/station_count_options"/>
 
         <View
+            style="@style/Divider"
             android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/primary_text" />
+            android:layout_height="match_parent"/>
 
     </LinearLayout>
 </ScrollView>

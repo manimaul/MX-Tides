@@ -2,11 +2,11 @@ package com.mxmariner.bus;
 
 
 public enum DrawerMenuEvent {
-    CloseTideStations,
-    CloseCurrentStations,
-    Map,
-    Harmonics,
-    Settings,
-    About,
-    SettingsDone
+    CLOSE_TIDE_STATIONS,
+    CLOSE_CURRENT_STATIONS,
+    MAP,
+    HARMONICS,
+    SETTINGS,
+    ABOUT,
+    SETTINGS_DONE
 }

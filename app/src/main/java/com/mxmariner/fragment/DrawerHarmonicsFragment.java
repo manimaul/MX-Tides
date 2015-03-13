@@ -1,19 +1,18 @@
-package com.mxmariner.viewcomponent;
+package com.mxmariner.fragment;
 
-import android.support.v7.widget.RecyclerView;
+import android.app.Fragment;
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 
-import com.mxmariner.andxtidelib.remote.RemoteStationData;
+import com.mxmariner.bus.DrawerMenuEvent;
+import com.mxmariner.bus.EventBus;
+import com.mxmariner.tides.R;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
-public class StationAdapter extends RecyclerView.Adapter<StationAdapter.ViewHolder> {
+public class DrawerHarmonicsFragment extends Fragment {
 
     //region CLASS VARIABLES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    public static final String TAG = StationAdapter.class.getSimpleName();
 
     //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -25,15 +24,12 @@ public class StationAdapter extends RecyclerView.Adapter<StationAdapter.ViewHold
 
     //region FIELDS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    private List<RemoteStationData> stations = new ArrayList<>();
+    private DoneClickListener doneClickListener = new DoneClickListener();
 
     //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
     //region CONSTRUCTOR ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    public StationAdapter() {
-    }
 
     //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -50,22 +46,10 @@ public class StationAdapter extends RecyclerView.Adapter<StationAdapter.ViewHold
 
     //region PUBLIC METHODS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    public void setStationDataAndInvalidate(Collection<RemoteStationData> stationData) {
-        stations.clear();
-        stations.addAll(stationData);
-        notifyDataSetChanged();
-    }
-
     //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
     //region INNER CLASSES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    public static class ViewHolder extends RecyclerView.ViewHolder {
-        public ViewHolder(StationCard v) {
-            super(v);
-        }
-    }
 
     //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -82,41 +66,34 @@ public class StationAdapter extends RecyclerView.Adapter<StationAdapter.ViewHold
 
     //region LIFE CYCLE ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+
+        View v = inflater.inflate(R.layout.drawer_layout_harmonics, container, false);
+        v.findViewById(R.id.drawer_layout_settings_done_btn)
+                .setOnClickListener(doneClickListener);
+        return v;
+    }
+
     //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
     //region IMPLEMENTATION  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    @Override
-    public void onBindViewHolder(ViewHolder viewHolder, final int i) {
-        final StationCard card = (StationCard) viewHolder.itemView;
-        RemoteStationData remoteStationData = stations.get(i);
-        card.applyStationData(remoteStationData);
-    }
-
-    @Override
-    public int getItemCount() {
-        return stations.size();
-    }
-
-
-    @Override
-    public void onViewRecycled(ViewHolder holder) {
-        final StationCard card = (StationCard) holder.itemView;
-        card.recycleView();
-        super.onViewRecycled(holder);
-    }
-
-    @Override
-
-    public ViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
-        return new ViewHolder(new StationCard(viewGroup.getContext()));
-    }
 
     //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
     //region LISTENERS  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+    private class DoneClickListener implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            EventBus.getInstance()
+                    .post(DrawerMenuEvent.SETTINGS_DONE);
+        }
+    }
+
     //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 }

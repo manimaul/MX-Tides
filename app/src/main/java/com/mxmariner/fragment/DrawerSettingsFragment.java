@@ -16,6 +16,7 @@ import com.mxmariner.util.MXPreferences;
 public class DrawerSettingsFragment extends Fragment {
 
     //region CLASS VARIABLES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    public static final String TAG = DrawerSettingsFragment.class.getSimpleName();
 
     //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -115,6 +116,12 @@ public class DrawerSettingsFragment extends Fragment {
 
     //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+
+    //region IMPLEMENTATION  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
     //region LISTENERS  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     private class SelectedListener implements AdapterView.OnItemSelectedListener {
@@ -137,7 +144,7 @@ public class DrawerSettingsFragment extends Fragment {
         @Override
         public void onClick(View v) {
             EventBus.getInstance()
-                    .post(DrawerMenuEvent.SettingsDone);
+                    .post(DrawerMenuEvent.SETTINGS_DONE);
         }
     }
 

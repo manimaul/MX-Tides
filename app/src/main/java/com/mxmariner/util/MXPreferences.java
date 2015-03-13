@@ -4,6 +4,7 @@ package com.mxmariner.util;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.mxmariner.fragment.FragmentId;
 import com.mxmariner.tides.MXLogger;
 import com.mxmariner.tides.R;
 
@@ -15,6 +16,7 @@ public class MXPreferences {
     private static final String PREFERENCES_KEY = "PREFERENCES_KEY";
     private static final String PREF_KEY_NUM_STATION_CARDS = "PREF_NUM_STATION_CARDS";
     private static final String PREF_KEY_UNITS = "PREF_KEY_UNITS";
+    private static final String PREF_KEY_FRAGMENT_ID = "PREF_KEY_FRAGMENT_ID";
 
     //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -63,6 +65,18 @@ public class MXPreferences {
         getEditor().putString(PREF_KEY_UNITS, String.valueOf(value))
                 .apply();
 
+    }
+
+    public void setMainFragmentId(FragmentId type) {
+        getEditor().putString(PREF_KEY_FRAGMENT_ID, type.name())
+                .apply();
+    }
+
+    public FragmentId getMainFragmentId() {
+        String id = getSharedPreferences().getString(PREF_KEY_FRAGMENT_ID,
+                FragmentId.defaultId().name());
+
+        return FragmentId.getIdFromString(id);
     }
 
     //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

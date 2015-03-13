@@ -1,59 +1,71 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="240dp"
-    android:layout_height="match_parent"
-    android:background="@color/white">
+            android:layout_width="240dp"
+            android:layout_height="match_parent"
+            android:background="@color/white">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <ImageView
-            android:layout_width="240dp"
-            android:layout_height="178dp"
-            android:src="@drawable/xs" />
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/primary_text" />
+        <!--<ImageView-->
+        <!--android:layout_width="240dp"-->
+        <!--android:layout_height="178dp"-->
+        <!--android:src="@drawable/xs" />-->
 
         <TextView
-            android:id="@+id/drawer_layout_close_tide_tv"
+            style="@style/Header"
             android:layout_width="match_parent"
-            android:layout_height="44dp"
-            android:gravity="center"
-            android:text="10 Closest Tide Stations" />
+            android:layout_height="wrap_content"
+            android:text="Current View"/>
 
-        <View
+        <RadioGroup
+            android:id="@+id/drawer_layout_fragment_radio_group"
             android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/primary_text" />
+            android:layout_height="wrap_content">
+
+            <RadioButton
+                android:id="@+id/drawer_layout_close_tide"
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                android:gravity="center"
+                android:textColor="@color/secondary_text"
+                android:text="@string/closest_tide_stations"/>
+
+            <View
+                style="@style/Divider"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+
+            <RadioButton
+                android:id="@+id/drawer_layout_close_current"
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                android:gravity="center"
+                android:textColor="@color/secondary_text"
+                android:text="@string/closest_current_stations"/>
+
+            <View
+                style="@style/Divider"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+
+            <RadioButton
+                android:id="@+id/drawer_layout_map"
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                android:gravity="center"
+                android:textColor="@color/secondary_text"
+                android:text="Map"/>
+
+        </RadioGroup>
 
         <TextView
-            android:id="@+id/drawer_layout_close_current_tv"
+            style="@style/Header"
             android:layout_width="match_parent"
-            android:layout_height="44dp"
-            android:gravity="center"
-            android:text="10 Closest Current Stations" />
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/primary_text" />
-
-        <TextView
-            android:id="@+id/drawer_layout_map_tv"
-            android:layout_width="match_parent"
-            android:layout_height="44dp"
-            android:gravity="center"
-            android:text="Map" />
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/primary_text" />
+            android:layout_height="wrap_content"
+            android:text="Info and Options"/>
 
 
         <TextView
@@ -61,36 +73,36 @@
             android:layout_width="match_parent"
             android:layout_height="44dp"
             android:gravity="center"
-            android:text="Harmonics Database Info" />
+            android:text="Harmonics Database Info"/>
 
         <View
+            style="@style/Divider"
             android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/primary_text" />
+            android:layout_height="match_parent"/>
 
         <TextView
             android:id="@+id/drawer_layout_settings_tv"
             android:layout_width="match_parent"
             android:layout_height="44dp"
             android:gravity="center"
-            android:text="Settings" />
+            android:text="Settings"/>
 
         <View
+            style="@style/Divider"
             android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/primary_text" />
+            android:layout_height="match_parent"/>
 
         <TextView
             android:id="@+id/drawer_layout_about_tv"
             android:layout_width="match_parent"
             android:layout_height="44dp"
             android:gravity="center"
-            android:text="About" />
+            android:text="About"/>
 
         <View
+            style="@style/Header"
             android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/primary_text" />
+            android:layout_height="1dp"/>
 
     </LinearLayout>
 </ScrollView>

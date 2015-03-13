@@ -1,78 +1,88 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <android.support.v7.widget.CardView xmlns:card_view="http://schemas.android.com/apk/res-auto"
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/card_view"
-    android:layout_gravity="center"
-    android:layout_width="fill_parent"
-    android:layout_height="wrap_content"
-    card_view:cardCornerRadius="8dp"
-    android:layout_margin="8dp">
+                                    xmlns:android="http://schemas.android.com/apk/res/android"
+                                    xmlns:tools="http://schemas.android.com/tools"
+                                    android:id="@+id/card_view"
+                                    android:layout_gravity="center"
+                                    android:layout_width="fill_parent"
+                                    android:layout_height="wrap_content"
+                                    card_view:cardCornerRadius="8dp"
+                                    android:layout_margin="8dp">
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
         android:layout_margin="16dp"
         >
+
         <TextView
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/secondary_text"
+            android:textColor="@color/primary_text"
             android:text="Station Name:"/>
+
         <TextView
             android:id="@+id/station_card_station_name"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/primary_text"
+            android:textColor="@color/secondary_text"
             tools:text="Seattle, Puget Sound, Washington"
             android:layout_marginBottom="8dp"/>
+
         <TextView
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/secondary_text"
+            android:textColor="@color/primary_text"
             android:text="Station Time:"/>
+
         <TextView
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:id="@+id/station_card_station_datetime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/primary_text"
+            android:textColor="@color/secondary_text"
             tools:text="2015-01-26 08:21 AM PST"
             android:layout_marginBottom="8dp"/>
+
         <TextView
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/secondary_text"
+            android:textColor="@color/primary_text"
             android:text="Prediction:"/>
+
         <TextView
             android:id="@+id/station_card_station_prediction"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/primary_text"
+            android:textColor="@color/secondary_text"
             tools:text="12.23 feet"
             android:layout_marginBottom="8dp"/>
+
         <TextView
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/secondary_text"
+            android:textColor="@color/primary_text"
             android:text="Details:"/>
-        <LinearLayout
+
+        <com.mxmariner.viewcomponent.TextViewList
             android:id="@+id/station_card_details_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"/>
+
         <Space
             android:layout_width="match_parent"
-            android:layout_height="8dp" />
+            android:layout_height="8dp"/>
 
-        </LinearLayout>
+    </LinearLayout>
 
 
-    </android.support.v7.widget.CardView>
+</android.support.v7.widget.CardView>

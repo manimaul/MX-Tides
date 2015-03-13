@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="240dp"
+              android:layout_height="wrap_content"
+              android:background="@color/white"
+              android:orientation="vertical">
+
+    <Button
+        style="@style/Widget.AppCompat.Light.ActionButton"
+        android:id="@+id/drawer_layout_about_done_btn"
+        android:layout_width="wrap_content"
+        android:layout_margin="4dp"
+        android:layout_height="wrap_content"
+        android:textColor="@color/primary_dark"
+        android:text="Done"/>
+
+    <View
+        style="@style/Header"
+        android:layout_width="match_parent"
+        android:layout_height="24dp"/>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="false">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/noticetitle"
+                android:textStyle="bold"
+                android:layout_margin="8dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/notice"
+                android:layout_margin="8dp"/>
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>
