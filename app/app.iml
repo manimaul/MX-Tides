@@ -89,6 +89,7 @@
     <orderEntry type="library" exported="" name="support-v4-22.0.0" level="project" />
     <orderEntry type="library" exported="" name="mapsforge-map-0.3.0-PATCHED-jar-with-dependencies" level="project" />
     <orderEntry type="library" exported="" name="slf4j-android-1.5.8" level="project" />
+    <orderEntry type="library" exported="" name="geohash-1.0.10" level="project" />
     <orderEntry type="library" exported="" name="rxjava-1.0.4" level="project" />
     <orderEntry type="library" exported="" name="appcompat-v7-22.0.0" level="project" />
     <orderEntry type="library" exported="" name="otto-1.3.6" level="project" />
