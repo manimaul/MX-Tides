@@ -25,7 +25,6 @@ public class StationCard extends CardView {
     private TextView nameTv;
     private TextView dateTv;
     private TextView predictionTv;
-    private TextViewList detailsLayout;
 
     //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -52,7 +51,6 @@ public class StationCard extends CardView {
         nameTv = (TextView) findViewById(R.id.station_card_station_name);
         dateTv = (TextView) findViewById(R.id.station_card_station_datetime);
         predictionTv = (TextView) findViewById(R.id.station_card_station_prediction);
-        detailsLayout = (TextViewList) findViewById(R.id.station_card_details_container);
     }
 
     //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -71,18 +69,15 @@ public class StationCard extends CardView {
     //region PUBLIC METHODS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     public void applyStationData(final RemoteStationData data) {
-
         nameTv.setText(data.getName());
         dateTv.setText(data.getDataTimeStamp());
         predictionTv.setText(data.getPrediction());
-        detailsLayout.addTextViewsWithStrings(data.getPlainData());
     }
 
     public void recycleView() {
         nameTv.setText(null);
         dateTv.setText(null);
         predictionTv.setText(null);
-        detailsLayout.removeAllViews();
     }
 
     //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

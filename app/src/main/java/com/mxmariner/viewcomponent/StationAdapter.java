@@ -1,8 +1,11 @@
 package com.mxmariner.viewcomponent;
 
+import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
 import android.view.ViewGroup;
 
+import com.mxmariner.activity.StationActivity;
 import com.mxmariner.andxtidelib.remote.RemoteStationData;
 
 import java.util.ArrayList;
@@ -92,6 +95,7 @@ public class StationAdapter extends RecyclerView.Adapter<StationAdapter.ViewHold
         final StationCard card = (StationCard) viewHolder.itemView;
         RemoteStationData remoteStationData = stations.get(i);
         card.applyStationData(remoteStationData);
+        card.setOnClickListener(new CardClickListener(remoteStationData.getId(), viewHolder.itemView.getContext()));
     }
 
     @Override
@@ -118,5 +122,20 @@ public class StationAdapter extends RecyclerView.Adapter<StationAdapter.ViewHold
 
     //region LISTENERS  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+    private class CardClickListener implements View.OnClickListener {
+
+        private final long stationId;
+        private final Context context;
+
+        private CardClickListener(long stationId, Context context) {
+            this.stationId = stationId;
+            this.context = context;
+        }
+
+        @Override
+        public void onClick(View v) {
+            StationActivity.startWithStationId(context, stationId);
+        }
+    }
     //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 }

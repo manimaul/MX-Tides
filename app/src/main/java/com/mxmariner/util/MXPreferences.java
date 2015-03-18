@@ -4,7 +4,8 @@ package com.mxmariner.util;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import com.mxmariner.fragment.FragmentId;
+import com.google.android.gms.maps.model.LatLng;
+import com.mxmariner.fragment.MXMainFragmentId;
 import com.mxmariner.tides.MXLogger;
 import com.mxmariner.tides.R;
 
@@ -16,6 +17,9 @@ public class MXPreferences {
     private static final String PREFERENCES_KEY = "PREFERENCES_KEY";
     private static final String PREF_KEY_NUM_STATION_CARDS = "PREF_NUM_STATION_CARDS";
     private static final String PREF_KEY_UNITS = "PREF_KEY_UNITS";
+    private static final String PREF_KEY_MAP_ZOOM = "PREF_KEY_MAP_ZOOM";
+    private static final String PREF_KEY_MAP_LAT = "PREF_KEY_MAP_LAT";
+    private static final String PREF_KEY_MAP_LNG = "PREF_KEY_MAP_LNG";
     private static final String PREF_KEY_FRAGMENT_ID = "PREF_KEY_FRAGMENT_ID";
 
     //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -49,7 +53,8 @@ public class MXPreferences {
     public void setNumberOfStationCardsPref(Object value) {
         try {
             Integer intValue = Integer.parseInt(String.valueOf(value));
-            getEditor().putInt(PREF_KEY_NUM_STATION_CARDS, intValue)
+            getEditor()
+                    .putInt(PREF_KEY_NUM_STATION_CARDS, intValue)
                     .apply();
         } catch (Exception e) {
             MXLogger.e(TAG, "setNumberOfStationCardsPref(" + value + ")", e);
@@ -62,21 +67,46 @@ public class MXPreferences {
     }
 
     public void setUnitsOfMeasuerPref(Object value) {
-        getEditor().putString(PREF_KEY_UNITS, String.valueOf(value))
+        getEditor()
+                .putString(PREF_KEY_UNITS, String.valueOf(value))
                 .apply();
 
     }
 
-    public void setMainFragmentId(FragmentId type) {
+    public void setMainFragmentId(MXMainFragmentId type) {
         getEditor().putString(PREF_KEY_FRAGMENT_ID, type.name())
                 .apply();
     }
 
-    public FragmentId getMainFragmentId() {
+    public MXMainFragmentId getMainFragmentId() {
         String id = getSharedPreferences().getString(PREF_KEY_FRAGMENT_ID,
-                FragmentId.defaultId().name());
+                MXMainFragmentId.defaultId().name());
 
-        return FragmentId.getIdFromString(id);
+        return MXMainFragmentId.getIdFromString(id);
+    }
+
+    public float getGoogleMapZoom() {
+        return getSharedPreferences().getFloat(PREF_KEY_MAP_ZOOM, 2f);
+    }
+
+    public void setGoogleMapZoom(float zoom) {
+        getEditor()
+                .putFloat(PREF_KEY_MAP_ZOOM, zoom)
+                .apply();
+    }
+
+    public LatLng getGoogleMapLocation() {
+        double lat = getSharedPreferences().getFloat(PREF_KEY_MAP_LAT, 0f);
+        double lng = getSharedPreferences().getFloat(PREF_KEY_MAP_LNG, 0f);
+        return new LatLng(lat, lng);
+    }
+
+    public void setGoogleMapLocation(LatLng location) {
+        getEditor()
+                .putFloat(PREF_KEY_MAP_LAT, (float) location.latitude)
+                .putFloat(PREF_KEY_MAP_LNG, (float) location.longitude)
+                .apply();
+
     }
 
     //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

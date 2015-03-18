@@ -7,11 +7,10 @@ public abstract class MXMainFragment extends Fragment {
 
     public static final String TAG = MXMainFragment.class.getSimpleName();
 
-    public abstract FragmentId getFragmentId();
+    public abstract MXMainFragmentId getFragmentId();
 
     public abstract void invalidate();
 
-    public void setupActionBarTitle() {
-    }
+    public void setupActionBarTitle() {}
 
 }

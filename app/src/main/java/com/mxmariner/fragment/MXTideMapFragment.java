@@ -1,26 +1,24 @@
 package com.mxmariner.fragment;
 
 import android.app.ActionBar;
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
-import android.content.ServiceConnection;
 import android.os.Bundle;
-import android.os.IBinder;
-import android.os.RemoteException;
-import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.mxmariner.andxtidelib.IHarmonicsDatabaseService;
-import com.mxmariner.andxtidelib.IRemoteServiceCallback;
-import com.mxmariner.tides.MXLogger;
+import com.google.android.gms.maps.model.LatLng;
+import com.mxmariner.andxtidelib.remote.StationType;
 import com.mxmariner.tides.R;
+import com.mxmariner.util.GoogleMapCommunicator;
+import com.mxmariner.util.HarmonicsServiceConnection;
+import com.mxmariner.util.MXPreferences;
 
 public class MXTideMapFragment extends MXMainFragment {
 
@@ -36,18 +34,20 @@ public class MXTideMapFragment extends MXMainFragment {
 
     //region FIELDS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    private MapCameraListenerStationMarkerLoader mapCameraListener = new MapCameraListenerStationMarkerLoader();
-    private MyServiceConnection mServiceConnection = new MyServiceConnection();
+    private GoogleMapCommunicator googleMapCommunicator;
+    private HarmonicsServiceConnection serviceConnection = new HarmonicsServiceConnection();
+    private MXPreferences mxPreferences;
+    private Context context;
 
     //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
     //region CONSTRUCTOR ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    public static MXTideMapFragment createFragment(FragmentId fragmentId) {
+    public static MXTideMapFragment createFragment(MXMainFragmentId fragmentId, Bundle args) {
         MXTideMapFragment fragment = new MXTideMapFragment();
-        Bundle args = new Bundle();
-        args.putSerializable(FragmentId.class.getSimpleName(), fragmentId);
+        args = args == null ? new Bundle() : args ;
+        args.putSerializable(MXMainFragmentId.class.getSimpleName(), fragmentId);
         fragment.setArguments(args);
         return fragment;
     }
@@ -91,13 +91,14 @@ public class MXTideMapFragment extends MXMainFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        Intent serviceIntent = new Intent("com.mxmariner.andxtidelib.HarmonicsDatabaseService");
-        serviceIntent.setPackage("com.mxmariner.tides");
-        getActivity().bindService(serviceIntent, mServiceConnection, Context.BIND_AUTO_CREATE);
+        context = getActivity();
+        mxPreferences = new MXPreferences(context);
+        StationType type = getFragmentId() == MXMainFragmentId.MAP_FRAGMENT_TIDES ?
+                StationType.STATION_TYPE_TIDE : StationType.STATION_TYPE_CURRENT;
+        googleMapCommunicator = new GoogleMapCommunicator(context, type);
+        serviceConnection.startService(context, new ServiceConnectionListener());
     }
 
-    @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.mxtide_map_fragment_layout, container, false);
@@ -113,6 +114,23 @@ public class MXTideMapFragment extends MXMainFragment {
         mapFragment.getMapAsync(new MapReadyListener());
     }
 
+    @Override
+    public void onPause() {
+        if (googleMapCommunicator.getGoogleMap() != null) {
+            LatLng latLng = googleMapCommunicator.getGoogleMap().getCameraPosition().target;
+            float zoom = googleMapCommunicator.getGoogleMap().getCameraPosition().zoom;
+            mxPreferences.setGoogleMapLocation(latLng);
+            mxPreferences.setGoogleMapZoom(zoom);
+        }
+        super.onPause();
+    }
+
+    @Override
+    public void onDestroy() {
+        context.unbindService(serviceConnection);
+        super.onDestroy();
+    }
+
 
     //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -120,8 +138,8 @@ public class MXTideMapFragment extends MXMainFragment {
     //region IMPLEMENTATION  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     @Override
-    public FragmentId getFragmentId() {
-        return (FragmentId) getArguments().getSerializable(FragmentId.class.getSimpleName());
+    public MXMainFragmentId getFragmentId() {
+        return (MXMainFragmentId) getArguments().getSerializable(MXMainFragmentId.class.getSimpleName());
     }
 
     @Override
@@ -134,7 +152,11 @@ public class MXTideMapFragment extends MXMainFragment {
         if (getActivity() != null) {
             ActionBar actionBar = getActivity().getActionBar();
             if (actionBar != null) {
-                actionBar.setSubtitle(getString(R.string.map_subtitle));
+                if (getFragmentId() == MXMainFragmentId.MAP_FRAGMENT_TIDES) {
+                    actionBar.setSubtitle(getString(R.string.tide_station_map_subtitle));
+                } else {
+                    actionBar.setSubtitle(getString(R.string.current_station_map_subtitle));
+                }
             }
         }
     }
@@ -144,58 +166,34 @@ public class MXTideMapFragment extends MXMainFragment {
 
     //region LISTENERS  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+    private class ServiceConnectionListener implements HarmonicsServiceConnection.ConnectionListener {
+        @Override
+        public void onServiceLoaded() {
+            googleMapCommunicator.setHarmonicsDatabaseService(serviceConnection.getHarmonicsDatabaseService());
+        }
+
+        @Override
+        public void onServiceLoadError() {
+            Log.e(TAG, "onServiceLoadError");
+        }
+
+        @Override
+        public void onServiceDisconnected() {
+            googleMapCommunicator.setHarmonicsDatabaseService(null);
+        }
+    }
+
     private class MapReadyListener implements OnMapReadyCallback {
         @Override
         public void onMapReady(GoogleMap gMap) {
-            mapCameraListener.setGoogleMap(gMap);
-            gMap.setOnCameraChangeListener(mapCameraListener);
+            CameraUpdate cu = CameraUpdateFactory.newLatLngZoom(mxPreferences.getGoogleMapLocation(),
+                    mxPreferences.getGoogleMapZoom());
+            gMap.moveCamera(cu);
+            googleMapCommunicator.setGoogleMap(gMap);
+            gMap.setOnCameraChangeListener(googleMapCommunicator);
+            gMap.setInfoWindowAdapter(googleMapCommunicator);
+            gMap.setOnInfoWindowClickListener(googleMapCommunicator);
             gMap.setMyLocationEnabled(true);
-        }
-    }
-
-
-    private class ServiceCallback extends IRemoteServiceCallback.Stub {
-
-        private final IHarmonicsDatabaseService service;
-
-        private ServiceCallback(IHarmonicsDatabaseService service) {
-            this.service = service;
-        }
-
-        @Override
-        public void onComplete(int result) throws RemoteException {
-
-            if (result == 0) {
-                Log.d(TAG, "ServiceCallback onComplete()");
-                mapCameraListener.setHarmonicsDatabaseService(service);
-            } else {
-                Log.e(TAG, "HarmonicsDatabaseService async load result error code: " + result);
-                //todo: handle error ui
-            }
-
-        }
-    }
-
-
-    private class MyServiceConnection implements ServiceConnection {
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            Log.d(TAG, "onServiceConnected()");
-            IHarmonicsDatabaseService databaseService = IHarmonicsDatabaseService.Stub.asInterface(service);
-
-            try {
-                Log.d(TAG, "onHarmonicsDatabaseOpened()");
-                databaseService.loadDatabaseAsync(new ServiceCallback(databaseService));
-            } catch (RemoteException e) {
-                MXLogger.e(TAG, "onHarmonicsDatabaseOpened()", e);
-                //todo: handle error ui
-            }
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            Log.d(TAG, "onServiceDisconnected()");
-            mapCameraListener.setHarmonicsDatabaseService(null);
         }
     }
 

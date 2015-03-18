@@ -1,4 +1,4 @@
-package com.mxmariner.fragment;
+package com.mxmariner.drawer;
 
 import android.app.Fragment;
 import android.os.Bundle;

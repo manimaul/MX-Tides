@@ -1,4 +1,4 @@
-package com.mxmariner.fragment;
+package com.mxmariner.drawer;
 
 import android.app.Fragment;
 import android.os.Bundle;
@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import com.mxmariner.bus.DrawerMenuEvent;
 import com.mxmariner.bus.EventBus;
+import com.mxmariner.fragment.MXMainFragmentId;
 import com.mxmariner.tides.R;
 import com.mxmariner.util.MXPreferences;
 
@@ -107,8 +108,9 @@ public class DrawerFragment extends Fragment {
         invalidate();
 
         int[] ids = {R.id.drawer_layout_close_tide, R.id.drawer_layout_close_current,
-                R.id.drawer_layout_map, R.id.drawer_layout_settings_tv,
-                R.id.drawer_layout_harmonics_info_tv, R.id.drawer_layout_about_tv};
+                R.id.drawer_layout_tide_map, R.id.drawer_layout_current_map,
+                R.id.drawer_layout_settings_tv, R.id.drawer_layout_harmonics_info_tv,
+                R.id.drawer_layout_about_tv};
 
         for (int id : ids) {
             v.findViewById(id).setOnClickListener(clickListener);
@@ -117,13 +119,15 @@ public class DrawerFragment extends Fragment {
         RadioGroup radioGroup = (RadioGroup) v.findViewById(R.id.drawer_layout_fragment_radio_group);
 
         MXPreferences mxPreferences = new MXPreferences(v.getContext());
-        FragmentId id = mxPreferences.getMainFragmentId();
-        if (id == FragmentId.STATION_CARD_RECYCLER_FRAGMENT_TIDES) {
+        MXMainFragmentId id = mxPreferences.getMainFragmentId();
+        if (id == MXMainFragmentId.STATION_CARD_RECYCLER_FRAGMENT_TIDES) {
             radioGroup.check(R.id.drawer_layout_close_tide);
-        } else if (id == FragmentId.STATION_CARD_RECYCLER_FRAGMENT_CURRENTS) {
+        } else if (id == MXMainFragmentId.STATION_CARD_RECYCLER_FRAGMENT_CURRENTS) {
             radioGroup.check(R.id.drawer_layout_close_current);
-        } else if (id == FragmentId.MAP_FRAGMENT) {
-            radioGroup.check(R.id.drawer_layout_map);
+        } else if (id == MXMainFragmentId.MAP_FRAGMENT_TIDES) {
+            radioGroup.check(R.id.drawer_layout_tide_map);
+        } else if (id == MXMainFragmentId.MAP_FRAGMENT_CURRENTS) {
+            radioGroup.check(R.id.drawer_layout_current_map);
         }
 
         return v;
@@ -150,8 +154,11 @@ public class DrawerFragment extends Fragment {
                 case R.id.drawer_layout_close_current:
                     event = DrawerMenuEvent.CLOSE_CURRENT_STATIONS;
                     break;
-                case R.id.drawer_layout_map:
-                    event = DrawerMenuEvent.MAP;
+                case R.id.drawer_layout_tide_map:
+                    event = DrawerMenuEvent.MAP_TIDE;
+                    break;
+                case R.id.drawer_layout_current_map:
+                    event = DrawerMenuEvent.MAP_CURRENT;
                     break;
                 case R.id.drawer_layout_settings_tv:
                     event = DrawerMenuEvent.SETTINGS;

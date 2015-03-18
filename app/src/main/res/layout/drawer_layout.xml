@@ -18,7 +18,7 @@
             style="@style/Header"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Current View"/>
+            android:text="@string/view"/>
 
         <RadioGroup
             android:id="@+id/drawer_layout_fragment_radio_group"
@@ -52,12 +52,25 @@
                 android:layout_height="match_parent"/>
 
             <RadioButton
-                android:id="@+id/drawer_layout_map"
+                android:id="@+id/drawer_layout_tide_map"
                 android:layout_width="match_parent"
                 android:layout_height="44dp"
                 android:gravity="center"
                 android:textColor="@color/secondary_text"
-                android:text="Map"/>
+                android:text="@string/tide_station_map"/>
+
+            <View
+                style="@style/Divider"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+
+            <RadioButton
+                android:id="@+id/drawer_layout_current_map"
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                android:gravity="center"
+                android:textColor="@color/secondary_text"
+                android:text="@string/tide_currents_station_map"/>
 
         </RadioGroup>
 
@@ -65,15 +78,16 @@
             style="@style/Header"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Info and Options"/>
+            android:text="@string/info_options"/>
 
 
         <TextView
             android:id="@+id/drawer_layout_harmonics_info_tv"
             android:layout_width="match_parent"
             android:layout_height="44dp"
+            android:textColor="@color/secondary_text"
             android:gravity="center"
-            android:text="Harmonics Database Info"/>
+            android:text="@string/harmonics_db_info"/>
 
         <View
             style="@style/Divider"
@@ -84,8 +98,9 @@
             android:id="@+id/drawer_layout_settings_tv"
             android:layout_width="match_parent"
             android:layout_height="44dp"
+            android:textColor="@color/secondary_text"
             android:gravity="center"
-            android:text="Settings"/>
+            android:text="@string/settings"/>
 
         <View
             style="@style/Divider"
@@ -96,11 +111,12 @@
             android:id="@+id/drawer_layout_about_tv"
             android:layout_width="match_parent"
             android:layout_height="44dp"
+            android:textColor="@color/secondary_text"
             android:gravity="center"
-            android:text="About"/>
+            android:text="@string/about"/>
 
         <View
-            style="@style/Header"
+            style="@style/Divider"
             android:layout_width="match_parent"
             android:layout_height="1dp"/>
 

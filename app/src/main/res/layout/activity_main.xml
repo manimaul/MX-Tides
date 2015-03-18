@@ -20,7 +20,7 @@
         android:layout_gravity="start">
 
         <fragment
-            android:name="com.mxmariner.fragment.DrawerFragment"
+            android:name="com.mxmariner.drawer.DrawerFragment"
             android:tag="DrawerFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />

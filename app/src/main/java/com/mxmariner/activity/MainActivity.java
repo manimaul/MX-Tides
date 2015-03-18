@@ -17,11 +17,11 @@ import android.view.Window;
 
 import com.mxmariner.bus.DrawerMenuEvent;
 import com.mxmariner.bus.EventBus;
-import com.mxmariner.fragment.DrawerAboutFragment;
-import com.mxmariner.fragment.DrawerFragment;
-import com.mxmariner.fragment.DrawerHarmonicsFragment;
-import com.mxmariner.fragment.DrawerSettingsFragment;
-import com.mxmariner.fragment.FragmentId;
+import com.mxmariner.drawer.DrawerAboutFragment;
+import com.mxmariner.drawer.DrawerFragment;
+import com.mxmariner.drawer.DrawerHarmonicsFragment;
+import com.mxmariner.drawer.DrawerSettingsFragment;
+import com.mxmariner.fragment.MXMainFragmentId;
 import com.mxmariner.fragment.MXMainFragment;
 import com.mxmariner.fragment.MXTideMapFragment;
 import com.mxmariner.fragment.StationCardRecyclerFragment;
@@ -47,7 +47,7 @@ public class MainActivity extends Activity {
 
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle actionBarDrawerToggle;
-    private FragmentId pendingId = null;
+    private MXMainFragmentId pendingId = null;
     private MXPreferences mxPreferences;
 
     //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -75,22 +75,29 @@ public class MainActivity extends Activity {
                 .commit();
     }
 
-    private MXMainFragment navigateToMainFragmentWithId(FragmentId fragmentId, boolean enforce) {
-        MXMainFragment mxMainFragment = null;
+    private void navigateToMainFragmentWithId(MXMainFragmentId fragmentId, Bundle args,  boolean enforce) {
         if (enforce || mxPreferences.getMainFragmentId() != fragmentId) {
+
+            MXMainFragment mxMainFragment = null;
+
             switch (fragmentId) {
                 case STATION_CARD_RECYCLER_FRAGMENT_TIDES: {
-                    mxMainFragment = StationCardRecyclerFragment.createFragment(fragmentId);
+                    mxMainFragment = StationCardRecyclerFragment.createFragment(fragmentId, args);
                     break;
                 }
 
                 case STATION_CARD_RECYCLER_FRAGMENT_CURRENTS: {
-                    mxMainFragment = StationCardRecyclerFragment.createFragment(fragmentId);
+                    mxMainFragment = StationCardRecyclerFragment.createFragment(fragmentId, args);
                     break;
                 }
 
-                case MAP_FRAGMENT: {
-                    mxMainFragment = MXTideMapFragment.createFragment(fragmentId);
+                case MAP_FRAGMENT_TIDES: {
+                    mxMainFragment = MXTideMapFragment.createFragment(fragmentId, args);
+                    break;
+                }
+
+                case MAP_FRAGMENT_CURRENTS: {
+                    mxMainFragment = MXTideMapFragment.createFragment(fragmentId, args);
                     break;
                 }
             }
@@ -109,7 +116,6 @@ public class MainActivity extends Activity {
         } else {
             Log.d(TAG, "navigateToMainFragmentWithId() already at target fragment");
         }
-        return mxMainFragment;
     }
 
     //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -126,22 +132,31 @@ public class MainActivity extends Activity {
 
     //region EVENTS  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    @SuppressWarnings("UnusedDeclaration")
+    @Subscribe
+    public void onStationIdEvent(Long stationId) {
+        StationActivity.startWithStationId(this, stationId);
+    }
+
     @Subscribe
     public void onDrawerMenuEvent(DrawerMenuEvent event) {
         switch (event) {
             case CLOSE_TIDE_STATIONS: {
-                pendingId = FragmentId.STATION_CARD_RECYCLER_FRAGMENT_TIDES;
+                pendingId = MXMainFragmentId.STATION_CARD_RECYCLER_FRAGMENT_TIDES;
                 drawerLayout.closeDrawer(Gravity.START);
                 break;
             }
             case CLOSE_CURRENT_STATIONS: {
-                pendingId = FragmentId.STATION_CARD_RECYCLER_FRAGMENT_CURRENTS;
+                pendingId = MXMainFragmentId.STATION_CARD_RECYCLER_FRAGMENT_CURRENTS;
                 drawerLayout.closeDrawer(Gravity.START);
                 break;
             }
-            case MAP: {
-                pendingId = FragmentId.MAP_FRAGMENT;
+            case MAP_TIDE: {
+                pendingId = MXMainFragmentId.MAP_FRAGMENT_TIDES;
+                drawerLayout.closeDrawer(Gravity.START);
+                break;
+            }
+            case MAP_CURRENT: {
+                pendingId = MXMainFragmentId.MAP_FRAGMENT_CURRENTS;
                 drawerLayout.closeDrawer(Gravity.START);
                 break;
             }
@@ -205,7 +220,7 @@ public class MainActivity extends Activity {
         EventBus.getInstance().register(this);
 
         mxPreferences = new MXPreferences(getApplicationContext());
-        navigateToMainFragmentWithId(mxPreferences.getMainFragmentId(), true);
+        navigateToMainFragmentWithId(mxPreferences.getMainFragmentId(), null, true);
     }
 
     @Override
@@ -248,7 +263,7 @@ public class MainActivity extends Activity {
             super.onDrawerClosed(drawerView);
 
             if (pendingId != null) {
-                navigateToMainFragmentWithId(pendingId, false);
+                navigateToMainFragmentWithId(pendingId, null, false);
                 pendingId = null;
             }
         }

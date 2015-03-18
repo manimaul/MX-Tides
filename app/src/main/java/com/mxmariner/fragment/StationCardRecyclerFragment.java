@@ -1,13 +1,9 @@
 package com.mxmariner.fragment;
 
 import android.app.ActionBar;
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
-import android.content.ServiceConnection;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.os.RemoteException;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -18,13 +14,12 @@ import android.view.ViewGroup;
 import android.widget.ProgressBar;
 
 import com.mxmariner.andxtidelib.IHarmonicsDatabaseService;
-import com.mxmariner.andxtidelib.IRemoteServiceCallback;
 import com.mxmariner.andxtidelib.MXLatLng;
 import com.mxmariner.andxtidelib.remote.RemoteStation;
 import com.mxmariner.andxtidelib.remote.RemoteStationData;
 import com.mxmariner.andxtidelib.remote.StationType;
-import com.mxmariner.tides.MXLogger;
 import com.mxmariner.tides.R;
+import com.mxmariner.util.HarmonicsServiceConnection;
 import com.mxmariner.util.LocationUtils;
 import com.mxmariner.util.MXPreferences;
 import com.mxmariner.viewcomponent.StationAdapter;
@@ -51,13 +46,12 @@ public class StationCardRecyclerFragment extends MXMainFragment {
 
     //region FIELDS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    private MyServiceConnection mServiceConnection = new MyServiceConnection();
-    private IHarmonicsDatabaseService harmonicsDatabaseService;
     private RecyclerView recyclerView;
     private ProgressBar progressBar;
     private Context context;
     private MXPreferences mxPreferences;
     private StationAdapter stationAdapter = new StationAdapter();
+    private HarmonicsServiceConnection serviceConnection = new HarmonicsServiceConnection();
     private int stationCardCount;
 
     //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -65,10 +59,10 @@ public class StationCardRecyclerFragment extends MXMainFragment {
 
     //region CONSTRUCTOR ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    public static StationCardRecyclerFragment createFragment(FragmentId fragmentId) {
+    public static StationCardRecyclerFragment createFragment(MXMainFragmentId fragmentId, Bundle args) {
         StationCardRecyclerFragment fragment = new StationCardRecyclerFragment();
-        Bundle args = new Bundle();
-        args.putSerializable(FragmentId.class.getSimpleName(), fragmentId);
+        args = args == null ? new Bundle() : args ;
+        args.putSerializable(MXMainFragmentId.class.getSimpleName(), fragmentId);
         fragment.setArguments(args);
         return fragment;
     }
@@ -128,16 +122,6 @@ public class StationCardRecyclerFragment extends MXMainFragment {
         task.execute();
     }
 
-    private void onHarmonicsDatabaseOpened(final IHarmonicsDatabaseService service) {
-        try {
-            Log.d(TAG, "onHarmonicsDatabaseOpened()");
-            service.loadDatabaseAsync(new ServiceCallback(service));
-        } catch (RemoteException e) {
-            MXLogger.e(TAG, "onHarmonicsDatabaseOpened()", e);
-            //todo: handle error ui
-        }
-    }
-
     @Override
     public void setupActionBarTitle() {
         if (getActivity() != null) {
@@ -161,47 +145,10 @@ public class StationCardRecyclerFragment extends MXMainFragment {
     //region INNER CLASSES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     private StationType getStationType() {
-        if (getFragmentId() == FragmentId.STATION_CARD_RECYCLER_FRAGMENT_TIDES) {
+        if (getFragmentId() == MXMainFragmentId.STATION_CARD_RECYCLER_FRAGMENT_TIDES) {
             return StationType.STATION_TYPE_TIDE;
         } else {
             return StationType.STATION_TYPE_CURRENT;
-        }
-    }
-
-    private class ServiceCallback extends IRemoteServiceCallback.Stub {
-
-        private final IHarmonicsDatabaseService service;
-
-        private ServiceCallback(IHarmonicsDatabaseService service) {
-            this.service = service;
-        }
-
-        @Override
-        public void onComplete(int result) throws RemoteException {
-
-            if (result == 0) {
-                Log.d(TAG, "ServiceCallback onComplete()");
-                getStationDataAsync(service, getStationType());
-            } else {
-                Log.e(TAG, "HarmonicsDatabaseService async load result error code: " + result);
-                //todo: handle error ui
-            }
-
-        }
-    }
-
-    private class MyServiceConnection implements ServiceConnection {
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            Log.d(TAG, "onServiceConnected()");
-            harmonicsDatabaseService = IHarmonicsDatabaseService.Stub.asInterface(service);
-            onHarmonicsDatabaseOpened(harmonicsDatabaseService);
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            Log.d(TAG, "onServiceDisconnected()");
-            harmonicsDatabaseService = null;
         }
     }
 
@@ -257,9 +204,7 @@ public class StationCardRecyclerFragment extends MXMainFragment {
         mxPreferences = new MXPreferences(context);
         stationCardCount = mxPreferences.getNumberOfStationCardsPref();
 
-        Intent serviceIntent = new Intent("com.mxmariner.andxtidelib.HarmonicsDatabaseService");
-        serviceIntent.setPackage("com.mxmariner.tides");
-        context.bindService(serviceIntent, mServiceConnection, Context.BIND_AUTO_CREATE);
+        serviceConnection.startService(context, new ServiceConnectionListener());
     }
 
     @Override
@@ -277,7 +222,7 @@ public class StationCardRecyclerFragment extends MXMainFragment {
 
     @Override
     public void onDestroy() {
-        context.unbindService(mServiceConnection);
+        context.unbindService(serviceConnection);
         super.onDestroy();
     }
 
@@ -287,17 +232,17 @@ public class StationCardRecyclerFragment extends MXMainFragment {
     //region IMPLEMENTATION  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     @Override
-    public FragmentId getFragmentId() {
-        return (FragmentId) getArguments().getSerializable(FragmentId.class.getSimpleName());
+    public MXMainFragmentId getFragmentId() {
+        return (MXMainFragmentId) getArguments().getSerializable(MXMainFragmentId.class.getSimpleName());
     }
 
     @Override
     public void invalidate() {
-        if (harmonicsDatabaseService != null && mxPreferences.getNumberOfStationCardsPref() != stationCardCount) {
+        if (serviceConnection.getHarmonicsDatabaseService() != null && mxPreferences.getNumberOfStationCardsPref() != stationCardCount) {
             stationCardCount = mxPreferences.getNumberOfStationCardsPref();
             recyclerView.setVisibility(View.GONE);
             progressBar.setVisibility(View.VISIBLE);
-            getStationDataAsync(harmonicsDatabaseService, getStationType());
+            getStationDataAsync(serviceConnection.getHarmonicsDatabaseService(), getStationType());
             setupActionBarTitle();
         }
     }
@@ -306,6 +251,25 @@ public class StationCardRecyclerFragment extends MXMainFragment {
 
 
     //region LISTENERS  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    private class ServiceConnectionListener implements HarmonicsServiceConnection.ConnectionListener {
+        @Override
+        public void onServiceLoaded() {
+            if (serviceConnection.getHarmonicsDatabaseService() != null) {
+                getStationDataAsync(serviceConnection.getHarmonicsDatabaseService(), getStationType());
+            }
+        }
+
+        @Override
+        public void onServiceLoadError() {
+
+        }
+
+        @Override
+        public void onServiceDisconnected() {
+
+        }
+    }
 
     //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
