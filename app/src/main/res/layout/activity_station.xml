@@ -85,6 +85,16 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"/>
 
+        <ImageView
+            android:id="@+id/activity_station_clock_iv"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"/>
+
+        <ImageView
+            android:id="@+id/activity_station_graph_iv"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"/>
+
         <Space
             android:layout_width="match_parent"
             android:layout_height="8dp"/>

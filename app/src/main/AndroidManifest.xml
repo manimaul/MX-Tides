@@ -38,9 +38,9 @@
         <activity android:name="com.mxmariner.activity.StationActivity"
                   android:label="@string/title_activity_station"  />
 
-        <service android:name="com.mxmariner.andxtidelib.HarmonicsDatabaseService" >
+        <service android:name="com.mxmariner.andxtidelib.remote.HarmonicsDatabaseService" >
             <intent-filter>
-                <action android:name="com.mxmariner.andxtidelib.HarmonicsDatabaseService" />
+                <action android:name="com.mxmariner.andxtidelib.remote.HarmonicsDatabaseService" />
             </intent-filter>
         </service>
 

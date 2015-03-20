@@ -57,7 +57,7 @@ public class HarmonicsServiceConnection implements ServiceConnection {
 
     public void startService(Context context, ConnectionListener listener) {
         connectionListener = listener;
-        Intent serviceIntent = new Intent("com.mxmariner.andxtidelib.HarmonicsDatabaseService");
+        Intent serviceIntent = new Intent("com.mxmariner.andxtidelib.remote.HarmonicsDatabaseService");
         serviceIntent.setPackage("com.mxmariner.tides");
         context.bindService(serviceIntent, this, Context.BIND_AUTO_CREATE);
     }
@@ -68,9 +68,9 @@ public class HarmonicsServiceConnection implements ServiceConnection {
     //region INNER CLASSES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     public interface ConnectionListener {
-        public void onServiceLoaded();
-        public void onServiceLoadError();
-        public void onServiceDisconnected();
+        void onServiceLoaded();
+        void onServiceLoadError();
+        void onServiceDisconnected();
     }
 
     private class ServiceCallback extends IRemoteServiceCallback.Stub {
@@ -120,11 +120,13 @@ public class HarmonicsServiceConnection implements ServiceConnection {
     public void onServiceConnected(ComponentName name, IBinder service) {
         Log.d(TAG, "onServiceConnected()");
         IHarmonicsDatabaseService harmonicsDatabaseService = IHarmonicsDatabaseService.Stub.asInterface(service);
-        try {
-            harmonicsDatabaseService.loadDatabaseAsync(new ServiceCallback(harmonicsDatabaseService));
-        } catch (RemoteException e) {
-            MXLogger.e(TAG, "onHarmonicsDatabaseOpened()", e);
-            connectionListener.onServiceLoadError();
+        if (harmonicsDatabaseService != null) {
+            try {
+                harmonicsDatabaseService.loadDatabaseAsync(new ServiceCallback(harmonicsDatabaseService));
+            } catch (RemoteException e) {
+                MXLogger.e(TAG, "onHarmonicsDatabaseOpened()", e);
+                connectionListener.onServiceLoadError();
+            }
         }
     }
 

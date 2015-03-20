@@ -1,8 +1,6 @@
 package com.mxmariner.util;
 
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.RemoteException;
@@ -233,9 +231,10 @@ public class GoogleMapCommunicator implements GoogleMap.OnCameraChangeListener,
                 long id = stationMarkers.get(marker.getPosition());
                 long epoch = Calendar.getInstance().getTime().getTime() / 1000;
                 try {
-                    RemoteStationData remoteStationData = harmonicsDatabaseService.getDataForTime(id, epoch);
+                    int options = RemoteStationData.REQUEST_OPTION_PLAIN_DATA | RemoteStationData.REQUEST_OPTION_GRAPH_SVG;
+                    RemoteStationData remoteStationData = harmonicsDatabaseService.getDataForTime(id, epoch, options);
                     marker.setTitle(remoteStationData.getName());
-                    marker.setSnippet(remoteStationData.getPrediction());
+                    marker.setSnippet(remoteStationData.getOptionalPrediction());
                 } catch (RemoteException e) {
                     Log.e(TAG, "", e);
                 }

@@ -1,3 +1,6 @@
 [submodule "AndXtideLib"]
 	path = AndXtideLib
 	url = git@github.com:manimaul/AndXtideLib.git
+[submodule "svgandroid"]
+	path = svg-android
+	url = git@github.com:japgolly/svg-android.git

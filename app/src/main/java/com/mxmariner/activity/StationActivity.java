@@ -5,12 +5,16 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.os.Bundle;
-import android.os.RemoteException;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.caverock.androidsvg.SVG;
+import com.caverock.androidsvg.SVGParseException;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
@@ -21,8 +25,6 @@ import com.mxmariner.andxtidelib.remote.RemoteStationData;
 import com.mxmariner.tides.R;
 import com.mxmariner.util.HarmonicsServiceConnection;
 import com.mxmariner.viewcomponent.TextViewList;
-
-import java.util.Calendar;
 
 public class StationActivity extends Activity {
 
@@ -55,6 +57,8 @@ public class StationActivity extends Activity {
 
     private TextView nameTv;
     private TextView dateTv;
+    private ImageView graphIv;
+    private ImageView clockIv;
     private TextView predictionTv;
     private TextViewList detailsLayout;
     private GoogleMap googleMap;
@@ -105,6 +109,27 @@ public class StationActivity extends Activity {
 
     //region PUBLIC METHODS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+    private Bitmap svgFromString(String svgString) {
+        try {
+            SVG svg = SVG.getFromString(svgString);
+            if (svg.getDocumentWidth() != -1) {
+                Bitmap newBM = Bitmap.createBitmap((int) Math.ceil(svg.getDocumentWidth()),
+                        (int) Math.ceil(svg.getDocumentHeight()),
+                        Bitmap.Config.ARGB_8888);
+                Canvas bmcanvas = new Canvas(newBM);
+                // Clear background to white
+                bmcanvas.drawRGB(255, 255, 255);
+                // Render our document onto our canvas
+                svg.renderToCanvas(bmcanvas);
+                return newBM;
+            }
+        } catch (SVGParseException e) {
+            Log.e(TAG, "", e);
+        }
+
+        return null;
+    }
+
     //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
@@ -144,6 +169,8 @@ public class StationActivity extends Activity {
 
         nameTv = (TextView) findViewById(R.id.activity_station_name);
         dateTv = (TextView) findViewById(R.id.activity_station_datetime);
+        graphIv = (ImageView) findViewById(R.id.activity_station_graph_iv);
+        clockIv = (ImageView) findViewById(R.id.activity_station_clock_iv);
         predictionTv = (TextView) findViewById(R.id.activity_station_prediction);
         detailsLayout = (TextViewList) findViewById(R.id.activity_station_details_container);
         stationId = getIntent().getLongExtra(STATION_ID, 0l);
@@ -174,19 +201,28 @@ public class StationActivity extends Activity {
     private class ServiceConnectionListener implements HarmonicsServiceConnection.ConnectionListener {
         @Override
         public void onServiceLoaded() {
-            if (serviceConnection.getHarmonicsDatabaseService() != null) {
-                long epoch = Calendar.getInstance().getTime().getTime() / 1000;
-                try {
-                    remoteStationData = serviceConnection.getHarmonicsDatabaseService().getDataForTime(stationId, epoch);
-                    nameTv.setText(remoteStationData.getName());
-                    dateTv.setText(remoteStationData.getDataTimeStamp());
-                    predictionTv.setText(remoteStationData.getPrediction());
-                    detailsLayout.addTextViewsWithStrings(remoteStationData.getPlainData());
-                    updateMapView();
-                } catch (RemoteException e) {
-                    Log.e(TAG, "onServiceLoaded()", e);
-                }
-            }
+//            if (serviceConnection.getHarmonicsDatabaseService() != null) {
+//                long epoch = Calendar.getInstance().getTime().getTime() / 1000;
+//                try {
+//                    remoteStationData = serviceConnection.getHarmonicsDatabaseService().getDataForTime(stationId, epoch);
+//                    nameTv.setText(remoteStationData.getName());
+//                    dateTv.setText(remoteStationData.getDataTimeStamp());
+//                    predictionTv.setText(remoteStationData.getOptionalPrediction());
+//                    detailsLayout.addTextViewsWithStrings(remoteStationData.getOptionalPlainData());
+//                    String svg = remoteStationData.getOptionalGraphSvg();
+//                    if (svg != null) {
+//                        graphIv.setImageBitmap(svgFromString(svg));
+//                    }
+//                    svg = remoteStationData.getOptionalClockSvg();
+//                    if (svg != null) {
+//                        clockIv.setImageBitmap(svgFromString(svg));
+//                    }
+//
+//                    updateMapView();
+//                } catch (RemoteException e) {
+//                    Log.e(TAG, "onServiceLoaded()", e);
+//                }
+//            }
         }
 
         @Override

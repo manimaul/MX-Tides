@@ -71,7 +71,7 @@ public class StationCard extends CardView {
     public void applyStationData(final RemoteStationData data) {
         nameTv.setText(data.getName());
         dateTv.setText(data.getDataTimeStamp());
-        predictionTv.setText(data.getPrediction());
+        predictionTv.setText(data.getOptionalPrediction());
     }
 
     public void recycleView() {
