@@ -7,4 +7,7 @@
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
 
+    <dimen name="graph_width">960dp</dimen>
+    <dimen name="graph_height">312dp</dimen>
+
 </resources>

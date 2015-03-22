@@ -96,9 +96,6 @@ public class StationCardRecyclerFragment extends MXMainFragment {
                             stationDatas.add(rsd);
                         }
                     }
-                    Log.d(TAG, "sorting station data");
-                    Collections.sort(stationDatas, new StationSorter(position));
-                    Log.d(TAG, "returning station data");
                 } catch (RemoteException e) {
                     Log.e(TAG, "RemoteException", e);
                 }
@@ -153,34 +150,7 @@ public class StationCardRecyclerFragment extends MXMainFragment {
         }
     }
 
-    private class StationSorter implements Comparator<RemoteStationData> {
 
-        private final double lat;
-        private final double lng;
-
-        StationSorter(MXLatLng position) {
-            if (position == null) {
-                lat = 0;
-                lng = 0;
-            } else {
-                lat = position.getLatitude();
-                lng = position.getLongitude();
-            }
-        }
-
-        @Override
-        public int compare(RemoteStationData lhs, RemoteStationData rhs) {
-
-            int lhsDistance = MXLatLng.distanceToPoint(lat, lng, lhs.getLatitude(), lhs.getLongitude());
-            int rhsDistance = MXLatLng.distanceToPoint(lat, lng, rhs.getLatitude(), rhs.getLongitude());
-
-            if (lhsDistance == rhsDistance) {
-                return 0;
-            }
-
-            return lhsDistance < rhsDistance ? -1 : 1;
-        }
-    }
 
     //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

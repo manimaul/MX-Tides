@@ -85,15 +85,26 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"/>
 
-        <ImageView
-            android:id="@+id/activity_station_clock_iv"
+        <HorizontalScrollView
+            android:layout_marginTop="@dimen/activity_vertical_margin"
             android:layout_width="match_parent"
-            android:layout_height="200dp"/>
+            android:layout_height="wrap_content">
 
-        <ImageView
-            android:id="@+id/activity_station_graph_iv"
-            android:layout_width="match_parent"
-            android:layout_height="200dp"/>
+            <FrameLayout
+                android:layout_width="@dimen/graph_width"
+                android:layout_height="@dimen/graph_height">
+
+                <ImageView
+                    android:id="@+id/activity_station_graph_iv"
+                    android:background="@color/divider"
+                    android:layout_width="@dimen/graph_width"
+                    android:layout_height="@dimen/graph_height" />
+
+            </FrameLayout>
+
+        </HorizontalScrollView>
+
+
 
         <Space
             android:layout_width="match_parent"
