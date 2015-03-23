@@ -21,11 +21,13 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
+import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.mxmariner.andxtidelib.remote.RemoteStationData;
 import com.mxmariner.tides.R;
 import com.mxmariner.util.HarmonicsServiceConnection;
+import com.mxmariner.viewcomponent.CircleCutoutLayout;
 import com.mxmariner.viewcomponent.TextViewList;
 
 import java.util.Calendar;
@@ -87,8 +89,7 @@ public class StationActivity extends Activity {
             LatLng position = new LatLng(remoteStationData.getLatitude(), remoteStationData.getLongitude());
             googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position, 7));
             googleMap.addMarker(new MarkerOptions()
-                    .position(position)
-                    .title(remoteStationData.getName()));
+                    .position(position));
         }
     }
 
@@ -215,12 +216,11 @@ public class StationActivity extends Activity {
         if (MapsInitializer.initialize(this) == 0) {
             mapView.onCreate(savedInstanceState);
             googleMap = mapView.getMap();
+            googleMap.getUiSettings().setMapToolbarEnabled(false);
         } else {
             Log.w(TAG, "no google play services");
             mapView.setVisibility(View.GONE);
         }
-
-
         nameTv = (TextView) findViewById(R.id.activity_station_name);
         dateTv = (TextView) findViewById(R.id.activity_station_datetime);
         graphIv = (ImageView) findViewById(R.id.activity_station_graph_iv);

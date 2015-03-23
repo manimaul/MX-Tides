@@ -15,84 +15,107 @@
         android:paddingBottom="@dimen/activity_vertical_margin"
         android:orientation="vertical">
 
-        <TextView
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@color/primary_text"
-            android:text="@string/station_name"/>
 
-        <TextView
-            android:id="@+id/activity_station_name"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@color/secondary_text"
-            tools:text="Seattle, Puget Sound, Washington"
-            android:layout_marginBottom="8dp"/>
 
-        <com.google.android.gms.maps.MapView
-            android:id="@+id/map_view"
-            android:layout_width="match_parent"
-            android:layout_height="148dp"
-            app:liteMode="true"
-            tools:visibility="visible"
-            app:mapType="normal" />
-
-        <TextView
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@color/primary_text"
-            android:layout_marginTop="8dp"
-            android:text="@string/station_time_now"/>
-
-        <TextView
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:id="@+id/activity_station_datetime"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@color/secondary_text"
-            tools:text="2015-01-26 08:21 AM PST"
-            android:layout_marginBottom="8dp"/>
-
-        <TextView
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@color/primary_text"
-            android:text="@string/prediction_now"/>
-
-        <TextView
-            android:id="@+id/activity_station_prediction"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@color/secondary_text"
-            tools:text="12.23 feet"
-            android:layout_marginBottom="8dp"/>
-
-        <TextView
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@color/primary_text"
-            android:text="@string/prediction_details"/>
-
-        <com.mxmariner.viewcomponent.TextViewList
-            android:id="@+id/activity_station_details_container"
+        <LinearLayout
+            android:id="@+id/activity_station_labels"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"/>
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:id="@+id/activity_main_topleft_labels"
+                android:layout_width="0dp"
+                android:layout_weight="3"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/activity_station_name_label"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/primary_text"
+                    android:text="@string/station_name"/>
+
+                <TextView
+                    android:id="@+id/activity_station_name"
+                    android:layout_below="@+id/activity_station_name_label"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:layout_width="match_parent"
+                    android:lines="2"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/secondary_text"
+                    tools:text="Seattle, Puget Sound, Washington"
+                    android:layout_marginBottom="8dp"/>
+
+                <TextView
+                    android:id="@+id/activity_main_station_datetime_label"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/primary_text"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/station_time_now"/>
+
+                <TextView
+                    android:id="@+id/activity_station_datetime"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/secondary_text"
+                    tools:text="2015-01-26 08:21 AM PST"
+                    android:layout_marginBottom="8dp"/>
+
+                <TextView
+                    android:id="@+id/activity_main_prediction_label"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/primary_text"
+                    android:text="@string/prediction_now"/>
+
+                <TextView
+                    android:id="@+id/activity_station_prediction"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom"
+                    android:textColor="@color/secondary_text"
+                    tools:text="12.23 feet"/>
+            </LinearLayout>
+
+            <com.mxmariner.viewcomponent.CircleCutoutLayout
+                android:layout_width="0dp"
+                android:layout_weight="2"
+                android:layout_height="match_parent"
+                android:layout_gravity="end">
+
+                <com.google.android.gms.maps.MapView
+                    android:id="@+id/map_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    app:liteMode="true"
+                    tools:visibility="visible"
+                    app:mapType="normal" />
+
+            </com.mxmariner.viewcomponent.CircleCutoutLayout>
+
+        </LinearLayout>
+
 
         <HorizontalScrollView
             android:layout_marginTop="@dimen/activity_vertical_margin"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:background="@drawable/border_rect"
+            android:padding="@dimen/border_width"
+            android:layout_marginBottom="8dp">
 
             <FrameLayout
                 android:layout_width="@dimen/graph_width"
-                android:layout_height="@dimen/graph_height">
+                android:layout_height="@dimen/graph_height"
+                android:padding="@dimen/border_width">
 
                 <ImageView
                     android:id="@+id/activity_station_graph_iv"
@@ -106,9 +129,28 @@
 
 
 
-        <Space
+
+        <TextView
+            android:id="@+id/activity_main_table_label"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/primary_text"
+            android:text="@string/prediction_details"/>
+
+        <com.mxmariner.viewcomponent.TextViewList
+            android:id="@+id/activity_station_details_container"
             android:layout_width="match_parent"
-            android:layout_height="8dp"/>
+            android:layout_height="wrap_content"
+            android:orientation="vertical"/>
+
+
+
+
+
+        <!--<Space-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="8dp"/>-->
 
     </LinearLayout>
 

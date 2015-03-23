@@ -15,7 +15,7 @@
     <string name="current_station_map_subtitle">Current Station Map</string>
     <string name="title_activity_station">Station Details</string>
 
-    <string name="prediction_now">Prediction Now:</string>
+    <string name="prediction_now">Prediction:</string>
     <string name="station_time_now">Station Time:</string>
     <string name="station_name">Station Name:</string>
     <string name="prediction_details">Prediction Details Table:</string>
