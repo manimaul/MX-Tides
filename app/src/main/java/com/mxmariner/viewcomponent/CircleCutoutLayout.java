@@ -32,7 +32,7 @@ public class CircleCutoutLayout extends FrameLayout {
 
     private void init() {
         borderPixels = getResources().getDimensionPixelSize(R.dimen.border_width);
-        borderPaint.setStrokeWidth(borderPixels + 1);
+        borderPaint.setStrokeWidth(borderPixels * 2);
         borderPaint.setStyle(Paint.Style.STROKE);
         borderPaint.setColor(getResources().getColor(R.color.secondary_text));
         borderPaint.setAntiAlias(true);
@@ -46,6 +46,6 @@ public class CircleCutoutLayout extends FrameLayout {
         path.addCircle(x, y, r, Path.Direction.CW);
         canvas.clipPath(path);
         super.dispatchDraw(canvas);
-        canvas.drawCircle(x, y, r - borderPixels, borderPaint);
+        canvas.drawCircle(x, y, r, borderPaint);
     }
 }

@@ -111,7 +111,10 @@ public class MXTideMapFragment extends MXMainFragment {
 
         MapFragment mapFragment = (MapFragment) getChildFragmentManager()
                 .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(new MapReadyListener());
+
+        if (mapFragment != null) { //NPE if no GP Services not installed?
+            mapFragment.getMapAsync(new MapReadyListener());
+        }
     }
 
     @Override

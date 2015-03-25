@@ -68,7 +68,7 @@ public class TextViewList extends LinearLayout {
      * @param strings array of strings to add as TextViews (first string skipped)
      */
     public void addTextViewsWithStrings(String[] strings) {
-        for (int i = 1; i < strings.length; i++) {
+        for (int i = 2; i < strings.length; i++) {
 
             final int styleId;
             if (i % 2 != 0) {
@@ -76,9 +76,11 @@ public class TextViewList extends LinearLayout {
             } else {
                 styleId = R.style.DetailEven;
             }
-            TextView tv = new TextView(new ContextThemeWrapper(getContext(), styleId), null, 0);
-            tv.setText(strings[i].trim());
-            addView(tv);
+            if (!strings[i].isEmpty()) {
+                TextView tv = new TextView(new ContextThemeWrapper(getContext(), styleId), null, 0);
+                tv.setText(strings[i]);
+                addView(tv);
+            }
         }
     }
 

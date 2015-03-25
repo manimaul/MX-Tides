@@ -7,6 +7,11 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.TransitionDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.RemoteException;
@@ -21,13 +26,13 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
-import com.google.android.gms.maps.UiSettings;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.mxmariner.andxtidelib.remote.RemoteStationData;
+import com.mxmariner.andxtidelib.remote.StationType;
 import com.mxmariner.tides.R;
 import com.mxmariner.util.HarmonicsServiceConnection;
-import com.mxmariner.viewcomponent.CircleCutoutLayout;
 import com.mxmariner.viewcomponent.TextViewList;
 
 import java.util.Calendar;
@@ -58,7 +63,7 @@ public class StationActivity extends Activity {
 
 
     //region FIELDS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    
+
     private Long stationId;
 
     private TextView nameTv;
@@ -66,6 +71,7 @@ public class StationActivity extends Activity {
     private ImageView graphIv;
     private TextView predictionTv;
     private TextViewList detailsLayout;
+    private View mapViewCover;
     private GoogleMap googleMap;
     private HarmonicsServiceConnection serviceConnection = new HarmonicsServiceConnection();
 
@@ -84,12 +90,26 @@ public class StationActivity extends Activity {
 
     //region PRIVATE METHODS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+    private int getIconResourceId(StationType stationType) {
+        if (stationType == StationType.STATION_TYPE_TIDE) {
+            return R.drawable.tidept;
+        } else {
+            return R.drawable.currentpt;
+        }
+    }
+
     private void updateMapView(RemoteStationData remoteStationData) {
         if (remoteStationData != null && googleMap != null) {
             LatLng position = new LatLng(remoteStationData.getLatitude(), remoteStationData.getLongitude());
+            int iconId = getIconResourceId(remoteStationData.getStationType());
             googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position, 7));
             googleMap.addMarker(new MarkerOptions()
-                    .position(position));
+                    .position(position))
+                    .setIcon(BitmapDescriptorFactory.fromResource(iconId));
+            mapViewCover.animate()
+                    .alpha(0f)
+                    .setDuration(500)
+                    .start();
         }
     }
 
@@ -143,9 +163,9 @@ public class StationActivity extends Activity {
     public void loadGraphAsync(RemoteStationData remoteStationData) {
         final String svgString = remoteStationData.getOptionalGraphSvg();
         if (svgString != null) {
-            new AsyncTask<Void, Void, Bitmap>() {
+            new AsyncTask<Void, Void, TransitionDrawable>() {
                 @Override
-                protected Bitmap doInBackground(Void... params) {
+                protected TransitionDrawable doInBackground(Void... params) {
                     try {
                         SVG svg = SVG.getFromString(svgString);
                         if (svg.getDocumentWidth() != -1) {
@@ -161,7 +181,11 @@ public class StationActivity extends Activity {
                             bmcanvas.drawRGB(255, 255, 255);
                             // Render our document onto our canvas
                             svg.renderToCanvas(bmcanvas);
-                            return newBM;
+
+                            return new TransitionDrawable(new Drawable[]{
+                                    new ColorDrawable(Color.TRANSPARENT),
+                                    new BitmapDrawable(getResources(), newBM)
+                            });
                         }
                     } catch (SVGParseException e) {
                         Log.e(TAG, "", e);
@@ -170,10 +194,11 @@ public class StationActivity extends Activity {
                 }
 
                 @Override
-                protected void onPostExecute(Bitmap bitmap) {
-                    super.onPostExecute(bitmap);
-                    if (bitmap != null) {
-                        graphIv.setImageBitmap(bitmap);
+                protected void onPostExecute(TransitionDrawable drawable) {
+                    super.onPostExecute(drawable);
+                    if (drawable != null) {
+                        graphIv.setImageDrawable(drawable);
+                        drawable.startTransition(500);
                     }
                 }
             }.execute();
@@ -226,6 +251,7 @@ public class StationActivity extends Activity {
         graphIv = (ImageView) findViewById(R.id.activity_station_graph_iv);
         predictionTv = (TextView) findViewById(R.id.activity_station_prediction);
         detailsLayout = (TextViewList) findViewById(R.id.activity_station_details_container);
+        mapViewCover = findViewById(R.id.map_view_cover);
         stationId = getIntent().getLongExtra(STATION_ID, 0l);
         if (stationId.equals(0l)) {
             showErrorAlert();
@@ -269,5 +295,5 @@ public class StationActivity extends Activity {
     }
 
     //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    
+
 }

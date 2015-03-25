@@ -231,10 +231,13 @@ public class GoogleMapCommunicator implements GoogleMap.OnCameraChangeListener,
                 long id = stationMarkers.get(marker.getPosition());
                 long epoch = Calendar.getInstance().getTime().getTime() / 1000;
                 try {
-                    int options = RemoteStationData.REQUEST_OPTION_PLAIN_DATA | RemoteStationData.REQUEST_OPTION_GRAPH_SVG;
+                    int options = RemoteStationData.REQUEST_OPTION_PREDICTION;
                     RemoteStationData remoteStationData = harmonicsDatabaseService.getDataForTime(id, epoch, options);
                     marker.setTitle(remoteStationData.getName());
-                    marker.setSnippet(remoteStationData.getOptionalPrediction());
+                    String snippet = context.getString(R.string.prediction_now) +
+                            " " +
+                            remoteStationData.getOptionalPrediction();
+                    marker.setSnippet(snippet);
                 } catch (RemoteException e) {
                     Log.e(TAG, "", e);
                 }
