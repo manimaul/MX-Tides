@@ -90,7 +90,7 @@ public class StationCardRecyclerFragment extends MXMainFragment {
                     long epoch = Calendar.getInstance().getTime().getTime() / 1000;
                     RemoteStationData rsd;
                     for (RemoteStation rs : remoteStations) {
-                        int options = RemoteStationData.REQUEST_OPTION_PREDICTION;
+                        int options = RemoteStationData.REQUEST_OPTION_PREDICTION | RemoteStationData.REQUEST_OPTION_CLOCK_SVG;
                         rsd = service.getDataForTime(rs.getStationId(), epoch, options);
                         if (rsd != null) {
                             stationDatas.add(rsd);

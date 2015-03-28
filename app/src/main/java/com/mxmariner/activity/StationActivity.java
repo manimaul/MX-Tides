@@ -1,5 +1,6 @@
 package com.mxmariner.activity;
 
+import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -8,15 +9,19 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.RemoteException;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
+import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -73,7 +78,10 @@ public class StationActivity extends Activity {
     private TextViewList detailsLayout;
     private View mapViewCover;
     private GoogleMap googleMap;
+    private HorizontalScrollView mGraphScrollView;
+    private Handler handler = new Handler();
     private HarmonicsServiceConnection serviceConnection = new HarmonicsServiceConnection();
+    private long epoch = Calendar.getInstance().getTime().getTime() / 1000;
 
     //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -132,7 +140,7 @@ public class StationActivity extends Activity {
             @Override
             protected RemoteStationData doInBackground(Void... params) {
                 if (serviceConnection.getHarmonicsDatabaseService() != null) {
-                    long epoch = Calendar.getInstance().getTime().getTime() / 1000;
+
                     try {
                         int options = RemoteStationData.REQUEST_OPTION_PLAIN_DATA |
                                 RemoteStationData.REQUEST_OPTION_PREDICTION |
@@ -198,7 +206,17 @@ public class StationActivity extends Activity {
                     super.onPostExecute(drawable);
                     if (drawable != null) {
                         graphIv.setImageDrawable(drawable);
+                        mGraphScrollView.setScrollX(graphIv.getWidth() - mGraphScrollView.getWidth());
                         drawable.startTransition(500);
+                        handler.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                ObjectAnimator.ofInt(mGraphScrollView, "scrollX", mGraphScrollView.getScrollX(), 0)
+                                        .setDuration(850)
+                                        .start();
+                            }
+                        }, 500);
+
                     }
                 }
             }.execute();
@@ -248,9 +266,12 @@ public class StationActivity extends Activity {
         }
         nameTv = (TextView) findViewById(R.id.activity_station_name);
         dateTv = (TextView) findViewById(R.id.activity_station_datetime);
+        dateTv.setPaintFlags(dateTv.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+        dateTv.setOnClickListener(new DateClickListener());
         graphIv = (ImageView) findViewById(R.id.activity_station_graph_iv);
         predictionTv = (TextView) findViewById(R.id.activity_station_prediction);
         detailsLayout = (TextViewList) findViewById(R.id.activity_station_details_container);
+        mGraphScrollView = (HorizontalScrollView) findViewById(R.id.activity_station_graph_scroll_view);
         mapViewCover = findViewById(R.id.map_view_cover);
         stationId = getIntent().getLongExtra(STATION_ID, 0l);
         if (stationId.equals(0l)) {
@@ -275,6 +296,17 @@ public class StationActivity extends Activity {
 
 
     //region LISTENERS  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    private class DateClickListener implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            //todo:
+            AlertDialog.Builder builder  = new AlertDialog.Builder(StationActivity.this);
+            builder.setTitle("Select Date")
+                    .setMessage("TODO...")
+                    .show();
+        }
+    }
 
     private class ServiceConnectionListener implements HarmonicsServiceConnection.ConnectionListener {
         @Override

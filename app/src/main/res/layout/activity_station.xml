@@ -29,6 +29,7 @@
                 android:orientation="vertical">
 
                 <TextView
+                    android:layout_gravity="start"
                     android:id="@+id/activity_station_name_label"
                     android:textAppearance="?android:attr/textAppearanceSmall"
                     android:layout_width="wrap_content"
@@ -38,7 +39,7 @@
 
                 <TextView
                     android:id="@+id/activity_station_name"
-                    android:layout_below="@+id/activity_station_name_label"
+                    android:layout_gravity="start"
                     android:textAppearance="?android:attr/textAppearanceSmall"
                     android:layout_width="match_parent"
                     android:lines="2"
@@ -54,21 +55,25 @@
                     android:layout_height="wrap_content"
                     android:textColor="@color/primary_text"
                     android:layout_marginTop="8dp"
+                    android:layout_gravity="start"
                     android:text="@string/station_time_now"/>
 
                 <TextView
+                    android:layout_gravity="start"
                     android:id="@+id/activity_station_datetime"
                     android:textAppearance="?android:attr/textAppearanceSmall"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/secondary_text"
+                    android:textColor="@color/primary_dark"
                     tools:text="2015-01-26 08:21 AM PST"
                     android:layout_marginBottom="8dp"/>
 
                 <TextView
+                    android:layout_gravity="start"
                     android:id="@+id/activity_main_prediction_label"
                     android:textAppearance="?android:attr/textAppearanceSmall"
                     android:layout_width="wrap_content"
+                    android:clickable="true"
                     android:layout_height="wrap_content"
                     android:textColor="@color/primary_text"
                     android:text="@string/prediction_now"/>
@@ -78,7 +83,7 @@
                     android:textAppearance="?android:attr/textAppearanceSmall"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="bottom"
+                    android:layout_gravity="bottom|start"
                     android:textColor="@color/secondary_text"
                     tools:text="12.23 feet"/>
             </LinearLayout>
@@ -108,6 +113,7 @@
         </LinearLayout>
 
         <HorizontalScrollView
+            android:id="@+id/activity_station_graph_scroll_view"
             android:layout_marginTop="@dimen/activity_vertical_margin"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
