@@ -1,13 +1,11 @@
 package com.mxmariner.viewcomponent;
 
-import android.content.Context;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.mxmariner.activity.StationActivity;
 import com.mxmariner.andxtidelib.remote.RemoteStationData;
+import com.mxmariner.event.Signals;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -91,28 +89,12 @@ public class StationAdapter extends RecyclerView.Adapter<StationAdapter.ViewHold
 
     //region IMPLEMENTATION  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-
-//    @Override
-//    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
-//        super.onAttachedToRecyclerView(recyclerView);
-//        recyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
-//            @Override
-//            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-//                super.onScrollStateChanged(recyclerView, newState);
-//                LinearLayoutManager manager = (LinearLayoutManager) recyclerView.getLayoutManager();
-//                if (newState == S)
-//                int first = manager.findFirstVisibleItemPosition();
-//                int last = manager.findLastVisibleItemPosition();
-//            }
-//        });
-//    }
-
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, final int i) {
         final StationCard card = (StationCard) viewHolder.itemView;
         RemoteStationData remoteStationData = stations.get(i);
         card.applyStationData(remoteStationData);
-        card.setOnClickListener(new CardClickListener(remoteStationData.getId(), viewHolder.itemView.getContext()));
+        card.setOnClickListener(new CardClickListener(remoteStationData.getId()));
     }
 
     @Override
@@ -142,16 +124,15 @@ public class StationAdapter extends RecyclerView.Adapter<StationAdapter.ViewHold
     private class CardClickListener implements View.OnClickListener {
 
         private final long stationId;
-        private final Context context;
 
-        private CardClickListener(long stationId, Context context) {
+        private CardClickListener(long stationId) {
             this.stationId = stationId;
-            this.context = context;
         }
 
         @Override
         public void onClick(View v) {
-            StationActivity.startWithStationId(context, stationId);
+            Signals.getInstance()
+                    .pusblishStationIdEvent(stationId);
         }
     }
     //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

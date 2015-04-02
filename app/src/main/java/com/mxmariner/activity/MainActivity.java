@@ -15,14 +15,14 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 
-import com.mxmariner.event.DrawerMenuEvent;
 import com.mxmariner.drawer.DrawerAboutFragment;
 import com.mxmariner.drawer.DrawerFragment;
 import com.mxmariner.drawer.DrawerHarmonicsFragment;
 import com.mxmariner.drawer.DrawerSettingsFragment;
+import com.mxmariner.event.DrawerMenuEvent;
 import com.mxmariner.event.Signals;
-import com.mxmariner.fragment.MXMainFragmentId;
 import com.mxmariner.fragment.MXMainFragment;
+import com.mxmariner.fragment.MXMainFragmentId;
 import com.mxmariner.fragment.MXTideMapFragment;
 import com.mxmariner.fragment.StationCardRecyclerFragment;
 import com.mxmariner.tides.R;
@@ -276,6 +276,7 @@ public class MainActivity extends Activity {
         }
 
         subscribeToDrawerMenuEvent();
+        subscribeToStationIdEvent();
 
         mxPreferences = new MXPreferences(getApplicationContext());
         navigateToMainFragmentWithId(mxPreferences.getMainFragmentId(), null, true);
