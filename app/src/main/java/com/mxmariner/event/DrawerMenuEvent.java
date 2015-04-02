@@ -1,4 +1,4 @@
-package com.mxmariner.bus;
+package com.mxmariner.event;
 
 
 public enum DrawerMenuEvent {

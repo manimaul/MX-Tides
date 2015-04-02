@@ -8,8 +8,8 @@ import android.view.ViewGroup;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
-import com.mxmariner.bus.DrawerMenuEvent;
-import com.mxmariner.bus.EventBus;
+import com.mxmariner.event.DrawerMenuEvent;
+import com.mxmariner.event.Signals;
 import com.mxmariner.fragment.MXMainFragmentId;
 import com.mxmariner.tides.R;
 import com.mxmariner.util.MXPreferences;
@@ -146,7 +146,7 @@ public class DrawerFragment extends Fragment {
     private class ClickListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
-            Object event = null;
+            DrawerMenuEvent event = null;
             switch (v.getId()) {
                 case R.id.drawer_layout_close_tide:
                     event = DrawerMenuEvent.CLOSE_TIDE_STATIONS;
@@ -172,8 +172,8 @@ public class DrawerFragment extends Fragment {
             }
 
             if (event != null) {
-                EventBus.getInstance()
-                        .post(event);
+                Signals.getInstance()
+                        .publishDrawerMenuEvent(event);
             }
         }
     }

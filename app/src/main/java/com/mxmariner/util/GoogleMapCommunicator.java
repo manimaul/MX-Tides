@@ -20,7 +20,7 @@ import com.mxmariner.andxtidelib.IHarmonicsDatabaseService;
 import com.mxmariner.andxtidelib.remote.RemoteStation;
 import com.mxmariner.andxtidelib.remote.RemoteStationData;
 import com.mxmariner.andxtidelib.remote.StationType;
-import com.mxmariner.bus.EventBus;
+import com.mxmariner.event.Signals;
 import com.mxmariner.tides.R;
 
 import java.util.Calendar;
@@ -207,7 +207,8 @@ public class GoogleMapCommunicator implements GoogleMap.OnCameraChangeListener,
         if (googleMap != null && harmonicsDatabaseService != null) {
             if (stationMarkers.containsKey(marker.getPosition())) {
                 final Long id = stationMarkers.get(marker.getPosition());
-                EventBus.getInstance().post(id);
+                Signals.getInstance()
+                        .pusblishStationIdEvent(id);
 
             } else if (groupedStationMarkers.containsKey(marker.getPosition())) {
                 BoundingBox boundingBox = groupedStationMarkers.get(marker.getPosition());

@@ -1,43 +1,22 @@
 non-ui
 =====
-DONE remove lib interfaces
 * service configurable units of measure
-* service tide graph bitmaps
 * open arbitrary (user) tcd files
 
 swipe menu
 =====
-DONE * (nested fragment)
 * cover actionbar
-* closest 10 - cardview - select 1
-    * scroll animated label "Closest 10 Stations"
-* map - select 1
-* harmonics db
-    - select tcd
-    - tcd / db info
-* about
-* settings fragment transaction inside menu
-
-settings
-=====
-nearby stations spinner
-units spinner
+* harmonics db drawer page
+* about drawer page
 
 actionbar
 =====
-* search - select 1
+* search
 
 
-station fragment
+station activity
 =====
-* viewpager for dates
-* scrollable graph
-
-service
-=====
-DONE HarmonicsDatabase as service
-DONE IStation aidl
-DONE IStationData aidl
+* date picker
 
 
 ```

@@ -15,19 +15,21 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 
-import com.mxmariner.bus.DrawerMenuEvent;
-import com.mxmariner.bus.EventBus;
+import com.mxmariner.event.DrawerMenuEvent;
 import com.mxmariner.drawer.DrawerAboutFragment;
 import com.mxmariner.drawer.DrawerFragment;
 import com.mxmariner.drawer.DrawerHarmonicsFragment;
 import com.mxmariner.drawer.DrawerSettingsFragment;
+import com.mxmariner.event.Signals;
 import com.mxmariner.fragment.MXMainFragmentId;
 import com.mxmariner.fragment.MXMainFragment;
 import com.mxmariner.fragment.MXTideMapFragment;
 import com.mxmariner.fragment.StationCardRecyclerFragment;
 import com.mxmariner.tides.R;
 import com.mxmariner.util.MXPreferences;
-import com.squareup.otto.Subscribe;
+
+import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
 
 public class MainActivity extends Activity {
 
@@ -49,6 +51,8 @@ public class MainActivity extends Activity {
     private ActionBarDrawerToggle actionBarDrawerToggle;
     private MXMainFragmentId pendingId = null;
     private MXPreferences mxPreferences;
+    private MenuEventSubScriber menuEventSubScriber;
+    private StationIdEvenSubscriber stationIdEvenSubscriber;
 
     //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -118,6 +122,26 @@ public class MainActivity extends Activity {
         }
     }
 
+    private void subscribeToStationIdEvent() {
+        if (stationIdEvenSubscriber != null) {
+            stationIdEvenSubscriber.unsubscribe();
+        }
+        stationIdEvenSubscriber = new StationIdEvenSubscriber();
+        Signals.getInstance().getStationIdEventObservable()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(stationIdEvenSubscriber);
+    }
+
+    private void subscribeToDrawerMenuEvent() {
+        if (menuEventSubScriber != null) {
+            menuEventSubScriber.unsubscribe();
+        }
+        menuEventSubScriber = new MenuEventSubScriber();
+        Signals.getInstance().getDrawerEventObservable()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(menuEventSubScriber);
+    }
+
     //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
@@ -128,16 +152,50 @@ public class MainActivity extends Activity {
 
     //region INNER CLASSES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+    private class StationIdEvenSubscriber extends Subscriber<Long> {
+        @Override
+        public void onCompleted() {
+
+        }
+
+        @Override
+        public void onError(Throwable e) {
+            Log.e(TAG, "onError()", e);
+            subscribeToStationIdEvent();
+        }
+
+        @Override
+        public void onNext(Long aLong) {
+            onStationIdEvent(aLong);
+        }
+    }
+
+    private class MenuEventSubScriber extends Subscriber<DrawerMenuEvent> {
+        @Override
+        public void onCompleted() {
+
+        }
+
+        @Override
+        public void onError(Throwable e) {
+            Log.e(TAG, "onError()", e);
+            subscribeToDrawerMenuEvent();
+        }
+
+        @Override
+        public void onNext(DrawerMenuEvent drawerMenuEvent) {
+            onDrawerMenuEvent(drawerMenuEvent);
+        }
+    }
+
     //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     //region EVENTS  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    @Subscribe
     public void onStationIdEvent(Long stationId) {
         StationActivity.startWithStationId(this, stationId);
     }
 
-    @Subscribe
     public void onDrawerMenuEvent(DrawerMenuEvent event) {
         switch (event) {
             case CLOSE_TIDE_STATIONS: {
@@ -217,7 +275,7 @@ public class MainActivity extends Activity {
             getActionBar().setHomeButtonEnabled(true);
         }
 
-        EventBus.getInstance().register(this);
+        subscribeToDrawerMenuEvent();
 
         mxPreferences = new MXPreferences(getApplicationContext());
         navigateToMainFragmentWithId(mxPreferences.getMainFragmentId(), null, true);
@@ -238,7 +296,8 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onDestroy() {
-        EventBus.getInstance().unregister(this);
+        menuEventSubScriber.unsubscribe();
+        stationIdEvenSubscriber.unsubscribe();
         super.onDestroy();
     }
 

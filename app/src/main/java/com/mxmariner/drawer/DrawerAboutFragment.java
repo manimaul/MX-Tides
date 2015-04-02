@@ -6,8 +6,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.mxmariner.bus.DrawerMenuEvent;
-import com.mxmariner.bus.EventBus;
+import com.mxmariner.event.DrawerMenuEvent;
+import com.mxmariner.event.Signals;
 import com.mxmariner.tides.R;
 
 public class DrawerAboutFragment extends Fragment {
@@ -88,8 +88,8 @@ public class DrawerAboutFragment extends Fragment {
     private class DoneClickListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
-            EventBus.getInstance()
-                    .post(DrawerMenuEvent.SETTINGS_DONE);
+            Signals.getInstance()
+                    .publishDrawerMenuEvent(DrawerMenuEvent.SETTINGS_DONE);
         }
     }
 
