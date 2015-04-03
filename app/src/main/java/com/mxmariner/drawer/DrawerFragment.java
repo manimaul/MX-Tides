@@ -61,16 +61,6 @@ public class DrawerFragment extends Fragment {
         }
     }
 
-//    public void onChangeStationType(StationType type) {
-//        if (type == StationType.STATION_TYPE_TIDE) {
-//            radioGroup.check();
-//        } else {
-//            currentCheckBox.setChecked(true);
-//            tideCheckBox.setChecked(false);
-//        }
-//        mxPreferences.setStationType(type);
-//    }
-
     //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 

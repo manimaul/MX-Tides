@@ -81,18 +81,22 @@
             android:text="@string/info_options"/>
 
 
+        <!-- disabled todo: -->
         <TextView
             android:id="@+id/drawer_layout_harmonics_info_tv"
             android:layout_width="match_parent"
             android:layout_height="44dp"
             android:textColor="@color/secondary_text"
             android:gravity="center"
-            android:text="@string/harmonics_db_info"/>
+            android:text="@string/harmonics_db_info"
+            android:visibility="gone"/>
 
+        <!-- disabled todo: -->
         <View
             style="@style/Divider"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent"
+            android:visibility="gone"/>
 
         <TextView
             android:id="@+id/drawer_layout_settings_tv"

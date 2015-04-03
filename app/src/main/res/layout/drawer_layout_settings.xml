@@ -11,12 +11,13 @@
         android:orientation="vertical">
 
         <Button
-            style="@style/DrawerMenuActionButton"
+            style="@style/Widget.AppCompat.Light.ActionButton"
             android:id="@+id/drawer_layout_settings_done_btn"
-            android:layout_width="match_parent"
-            android:padding="4dp"
+            android:layout_width="wrap_content"
+            android:layout_margin="4dp"
             android:layout_height="wrap_content"
-            android:text="Done"/>
+            android:textColor="@color/primary_dark"
+            android:text="@string/done"/>
 
         <View
             style="@style/Divider"
@@ -27,7 +28,7 @@
             style="@style/Header"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Units of measure"/>
+            android:text="@string/units_of_measure"/>
 
         <Spinner
             android:id="@+id/drawer_layout_settings_units_spn"
@@ -45,7 +46,7 @@
             style="@style/Header"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Number of station cards"/>
+            android:text="@string/number_of_station_cards"/>
 
         <Spinner
             android:id="@+id/drawer_layout_settings_card_num_spn"
