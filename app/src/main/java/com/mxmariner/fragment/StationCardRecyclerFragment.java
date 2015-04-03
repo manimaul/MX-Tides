@@ -18,6 +18,7 @@ import com.mxmariner.andxtidelib.MXLatLng;
 import com.mxmariner.andxtidelib.remote.RemoteStation;
 import com.mxmariner.andxtidelib.remote.RemoteStationData;
 import com.mxmariner.andxtidelib.remote.StationType;
+import com.mxmariner.andxtidelib.remote.UnitType;
 import com.mxmariner.tides.R;
 import com.mxmariner.util.HarmonicsServiceConnection;
 import com.mxmariner.util.LocationUtils;
@@ -53,6 +54,7 @@ public class StationCardRecyclerFragment extends MXMainFragment {
     private StationAdapter stationAdapter = new StationAdapter();
     private HarmonicsServiceConnection serviceConnection = new HarmonicsServiceConnection();
     private int stationCardCount;
+    private UnitType mUnitPref;
 
     //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -77,6 +79,11 @@ public class StationCardRecyclerFragment extends MXMainFragment {
 
     //region PRIVATE METHODS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+    public boolean settingsChanged() {
+        return mxPreferences.getNumberOfStationCardsPref() != stationCardCount ||
+                mxPreferences.getUnitsOfMeasurePref() != mUnitPref;
+    }
+
     private void getStationDataAsync(final IHarmonicsDatabaseService service, final StationType type) {
         AsyncTask<Void, Void, List<RemoteStationData>> task = new AsyncTask<Void, Void, List<RemoteStationData>>() {
             @Override
@@ -85,6 +92,7 @@ public class StationCardRecyclerFragment extends MXMainFragment {
                 MXLatLng position = LocationUtils.getLastKnownLocation(context);
                 List<RemoteStationData> stationDatas = null;
                 try {
+                    service.setUnits(mUnitPref);
                     List<RemoteStation> remoteStations = service.getClosestStations(type, position.getLatitude(), position.getLongitude(), stationCardCount);
                     stationDatas = new ArrayList<>(remoteStations.size());
                     long epoch = Calendar.getInstance().getTime().getTime() / 1000;
@@ -174,6 +182,7 @@ public class StationCardRecyclerFragment extends MXMainFragment {
         context = getActivity().getApplicationContext();
         mxPreferences = new MXPreferences(context);
         stationCardCount = mxPreferences.getNumberOfStationCardsPref();
+        mUnitPref = mxPreferences.getUnitsOfMeasurePref();
 
         serviceConnection.startService(context, new ServiceConnectionListener());
     }
@@ -209,8 +218,13 @@ public class StationCardRecyclerFragment extends MXMainFragment {
 
     @Override
     public void invalidate() {
-        if (serviceConnection.getHarmonicsDatabaseService() != null && mxPreferences.getNumberOfStationCardsPref() != stationCardCount) {
+        boolean change = settingsChanged();
+        if (change) {
             stationCardCount = mxPreferences.getNumberOfStationCardsPref();
+            mUnitPref = mxPreferences.getUnitsOfMeasurePref();
+        }
+
+        if (serviceConnection.getHarmonicsDatabaseService() != null && change) {
             recyclerView.setVisibility(View.GONE);
             progressBar.setVisibility(View.VISIBLE);
             getStationDataAsync(serviceConnection.getHarmonicsDatabaseService(), getStationType());

@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Spinner;
 
+import com.mxmariner.andxtidelib.remote.UnitType;
 import com.mxmariner.event.DrawerMenuEvent;
 import com.mxmariner.event.Signals;
 import com.mxmariner.tides.R;
@@ -107,8 +108,8 @@ public class DrawerSettingsFragment extends Fragment {
         String cardsPref = String.valueOf(mxPreferences.getNumberOfStationCardsPref());
         spinnerSelectObject(numCardSpinner, cardsPref);
 
-        String unitPref = mxPreferences.getUnitsOfMeasurePref();
-        spinnerSelectObject(unitSpinner, unitPref);
+        UnitType unitPref = mxPreferences.getUnitsOfMeasurePref();
+        spinnerSelectObject(unitSpinner, unitPref.toString());
 
         numCardSpinner.setOnItemSelectedListener(selectedListener);
         unitSpinner.setOnItemSelectedListener(selectedListener);

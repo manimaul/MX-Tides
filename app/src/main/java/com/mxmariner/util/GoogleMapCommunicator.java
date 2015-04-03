@@ -208,7 +208,7 @@ public class GoogleMapCommunicator implements GoogleMap.OnCameraChangeListener,
             if (stationMarkers.containsKey(marker.getPosition())) {
                 final Long id = stationMarkers.get(marker.getPosition());
                 Signals.getInstance()
-                        .pusblishStationIdEvent(id);
+                        .publishStationIdEvent(id);
 
             } else if (groupedStationMarkers.containsKey(marker.getPosition())) {
                 BoundingBox boundingBox = groupedStationMarkers.get(marker.getPosition());

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="unit_option_statute">Statute</string>
+    <string name="unit_option_statute">Feet</string>
     /*default*/
-    <string name="unit_option_metric">Metric</string>
+    <string name="unit_option_metric">Meters</string>
     <string-array name="unit_options">
         <item>@string/unit_option_statute</item>
         <item>@string/unit_option_metric</item>

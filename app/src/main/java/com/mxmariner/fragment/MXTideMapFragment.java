@@ -3,6 +3,7 @@ package com.mxmariner.fragment;
 import android.app.ActionBar;
 import android.content.Context;
 import android.os.Bundle;
+import android.os.RemoteException;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,6 +16,7 @@ import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.mxmariner.andxtidelib.remote.StationType;
+import com.mxmariner.andxtidelib.remote.UnitType;
 import com.mxmariner.tides.R;
 import com.mxmariner.util.GoogleMapCommunicator;
 import com.mxmariner.util.HarmonicsServiceConnection;
@@ -147,7 +149,14 @@ public class MXTideMapFragment extends MXMainFragment {
 
     @Override
     public void invalidate() {
-        //nothing to do
+        UnitType unitPref = mxPreferences.getUnitsOfMeasurePref();
+        if (serviceConnection.getHarmonicsDatabaseService() != null) {
+            try {
+                serviceConnection.getHarmonicsDatabaseService().setUnits(unitPref);
+            } catch (RemoteException e) {
+                Log.e(TAG, "", e);
+            }
+        }
     }
 
     @Override

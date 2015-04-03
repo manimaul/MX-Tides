@@ -132,7 +132,7 @@ public class StationAdapter extends RecyclerView.Adapter<StationAdapter.ViewHold
         @Override
         public void onClick(View v) {
             Signals.getInstance()
-                    .pusblishStationIdEvent(stationId);
+                    .publishStationIdEvent(stationId);
         }
     }
     //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

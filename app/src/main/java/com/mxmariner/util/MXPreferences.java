@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.mxmariner.andxtidelib.remote.UnitType;
 import com.mxmariner.fragment.MXMainFragmentId;
 import com.mxmariner.tides.MXLogger;
 import com.mxmariner.tides.R;
@@ -61,16 +62,16 @@ public class MXPreferences {
         }
     }
 
-    public String getUnitsOfMeasurePref() {
+    public UnitType getUnitsOfMeasurePref() {
         String defVal = context.getString(R.string.unit_option_statute);
-        return getSharedPreferences().getString(PREF_KEY_UNITS, defVal);
+        String strType = getSharedPreferences().getString(PREF_KEY_UNITS, defVal);
+        return UnitType.typeWithString(strType);
     }
 
     public void setUnitsOfMeasuerPref(Object value) {
         getEditor()
-                .putString(PREF_KEY_UNITS, String.valueOf(value))
+                .putString(PREF_KEY_UNITS, value.toString())
                 .apply();
-
     }
 
     public void setMainFragmentId(MXMainFragmentId type) {

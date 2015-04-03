@@ -51,7 +51,7 @@ public class MainActivity extends Activity {
     private ActionBarDrawerToggle actionBarDrawerToggle;
     private MXMainFragmentId pendingId = null;
     private MXPreferences mxPreferences;
-    private MenuEventSubScriber menuEventSubScriber;
+    private MenuEventSubscriber menuEventSubscriber;
     private StationIdEvenSubscriber stationIdEvenSubscriber;
 
     //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -133,13 +133,13 @@ public class MainActivity extends Activity {
     }
 
     private void subscribeToDrawerMenuEvent() {
-        if (menuEventSubScriber != null) {
-            menuEventSubScriber.unsubscribe();
+        if (menuEventSubscriber != null) {
+            menuEventSubscriber.unsubscribe();
         }
-        menuEventSubScriber = new MenuEventSubScriber();
+        menuEventSubscriber = new MenuEventSubscriber();
         Signals.getInstance().getDrawerEventObservable()
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(menuEventSubScriber);
+                .subscribe(menuEventSubscriber);
     }
 
     //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -170,7 +170,7 @@ public class MainActivity extends Activity {
         }
     }
 
-    private class MenuEventSubScriber extends Subscriber<DrawerMenuEvent> {
+    private class MenuEventSubscriber extends Subscriber<DrawerMenuEvent> {
         @Override
         public void onCompleted() {
 
@@ -297,7 +297,7 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onDestroy() {
-        menuEventSubScriber.unsubscribe();
+        menuEventSubscriber.unsubscribe();
         stationIdEvenSubscriber.unsubscribe();
         super.onDestroy();
     }

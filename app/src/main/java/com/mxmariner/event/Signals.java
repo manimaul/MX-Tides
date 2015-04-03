@@ -29,7 +29,7 @@ public class Signals {
         return Observable.switchOnNext(stationIdEventSubject);
     }
 
-    public void pusblishStationIdEvent(Long id) {
+    public void publishStationIdEvent(Long id) {
         stationIdEventSubject.onNext(Observable.just(id));
     }
 
