@@ -6,8 +6,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.mxmariner.event.DrawerMenuEvent;
-import com.mxmariner.event.Signals;
+import com.mxmariner.signal.DrawerMenuSignal;
+import com.mxmariner.signal.SignalDispatch;
 import com.mxmariner.tides.R;
 
 public class DrawerHarmonicsFragment extends Fragment {
@@ -88,8 +88,8 @@ public class DrawerHarmonicsFragment extends Fragment {
     private class DoneClickListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
-            Signals.getInstance()
-                    .publishDrawerMenuEvent(DrawerMenuEvent.SETTINGS_DONE);
+            SignalDispatch.getInstance()
+                    .publishDrawerMenuSignal(DrawerMenuSignal.SETTINGS_DONE);
         }
     }
 

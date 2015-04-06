@@ -1,7 +1,7 @@
-package com.mxmariner.event;
+package com.mxmariner.signal;
 
 
-public enum DrawerMenuEvent {
+public enum DrawerMenuSignal {
     CLOSE_TIDE_STATIONS,
     CLOSE_CURRENT_STATIONS,
     MAP_TIDE,

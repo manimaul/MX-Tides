@@ -19,8 +19,8 @@ import com.mxmariner.drawer.DrawerAboutFragment;
 import com.mxmariner.drawer.DrawerFragment;
 import com.mxmariner.drawer.DrawerHarmonicsFragment;
 import com.mxmariner.drawer.DrawerSettingsFragment;
-import com.mxmariner.event.DrawerMenuEvent;
-import com.mxmariner.event.Signals;
+import com.mxmariner.signal.DrawerMenuSignal;
+import com.mxmariner.signal.SignalDispatch;
 import com.mxmariner.fragment.MXMainFragment;
 import com.mxmariner.fragment.MXMainFragmentId;
 import com.mxmariner.fragment.MXTideMapFragment;
@@ -127,7 +127,7 @@ public class MainActivity extends Activity {
             stationIdEvenSubscriber.unsubscribe();
         }
         stationIdEvenSubscriber = new StationIdEvenSubscriber();
-        Signals.getInstance().getStationIdEventObservable()
+        SignalDispatch.getInstance().getStationIdEventObservable()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(stationIdEvenSubscriber);
     }
@@ -137,7 +137,7 @@ public class MainActivity extends Activity {
             menuEventSubscriber.unsubscribe();
         }
         menuEventSubscriber = new MenuEventSubscriber();
-        Signals.getInstance().getDrawerEventObservable()
+        SignalDispatch.getInstance().getDrawerEventObservable()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(menuEventSubscriber);
     }
@@ -170,7 +170,7 @@ public class MainActivity extends Activity {
         }
     }
 
-    private class MenuEventSubscriber extends Subscriber<DrawerMenuEvent> {
+    private class MenuEventSubscriber extends Subscriber<DrawerMenuSignal> {
         @Override
         public void onCompleted() {
 
@@ -183,8 +183,8 @@ public class MainActivity extends Activity {
         }
 
         @Override
-        public void onNext(DrawerMenuEvent drawerMenuEvent) {
-            onDrawerMenuEvent(drawerMenuEvent);
+        public void onNext(DrawerMenuSignal drawerMenuSignal) {
+            onDrawerMenuEvent(drawerMenuSignal);
         }
     }
 
@@ -196,7 +196,7 @@ public class MainActivity extends Activity {
         StationActivity.startWithStationId(this, stationId);
     }
 
-    public void onDrawerMenuEvent(DrawerMenuEvent event) {
+    public void onDrawerMenuEvent(DrawerMenuSignal event) {
         switch (event) {
             case CLOSE_TIDE_STATIONS: {
                 pendingId = MXMainFragmentId.STATION_CARD_RECYCLER_FRAGMENT_TIDES;

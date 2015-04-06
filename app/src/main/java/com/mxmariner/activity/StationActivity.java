@@ -35,11 +35,16 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.mxmariner.andxtidelib.remote.RemoteStationData;
 import com.mxmariner.andxtidelib.remote.StationType;
+import com.mxmariner.fragment.DatePickerDialogFragment;
+import com.mxmariner.fragment.TimePickerDialogFragment;
+import com.mxmariner.signal.PredictionTimeSignal;
+import com.mxmariner.signal.SignalDispatch;
 import com.mxmariner.tides.R;
 import com.mxmariner.util.HarmonicsServiceConnection;
 import com.mxmariner.viewcomponent.TextViewList;
 
-import java.util.Calendar;
+import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
 
 public class StationActivity extends Activity {
 
@@ -80,7 +85,7 @@ public class StationActivity extends Activity {
     private HorizontalScrollView mGraphScrollView;
     private Handler handler = new Handler();
     private HarmonicsServiceConnection serviceConnection = new HarmonicsServiceConnection();
-    private long epoch = Calendar.getInstance().getTime().getTime() / 1000;
+    private PredictionTimeSignalSubscriber predictionTimeSignalSubscriber;
 
     //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -134,7 +139,7 @@ public class StationActivity extends Activity {
                 .show();
     }
 
-    private void setupViewAsync() {
+    private void setupViewAsync(final PredictionTimeSignal timeSignal) {
         new AsyncTask<Void, Void, RemoteStationData>() {
             @Override
             protected RemoteStationData doInBackground(Void... params) {
@@ -144,7 +149,7 @@ public class StationActivity extends Activity {
                         int options = RemoteStationData.REQUEST_OPTION_PLAIN_DATA |
                                 RemoteStationData.REQUEST_OPTION_PREDICTION |
                                 RemoteStationData.REQUEST_OPTION_GRAPH_SVG;
-                        return serviceConnection.getHarmonicsDatabaseService().getDataForTime(stationId, epoch, options);
+                        return serviceConnection.getHarmonicsDatabaseService().getDataForTime(stationId, timeSignal.getEpochSeconds(), options);
                     } catch (RemoteException e) {
                         Log.e(TAG, "onServiceLoaded()", e);
                     }
@@ -162,6 +167,8 @@ public class StationActivity extends Activity {
                     detailsLayout.addTextViewsWithStrings(remoteStationData.getOptionalPlainData());
                     updateMapView(remoteStationData);
                     loadGraphAsync(remoteStationData);
+                } else {
+                    showErrorAlert();
                 }
             }
         }.execute();
@@ -237,6 +244,24 @@ public class StationActivity extends Activity {
 
     //region EVENTS  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+    private class PredictionTimeSignalSubscriber extends Subscriber<PredictionTimeSignal> {
+        @Override
+        public void onCompleted() {
+            Log.e(TAG, "onCompleted()");
+        }
+
+        @Override
+        public void onError(Throwable e) {
+            Log.e(TAG, "onError()", e);
+        }
+
+        @Override
+        public void onNext(PredictionTimeSignal signal) {
+            Log.d(TAG, "onNext() PredictionTimeSignal: " + signal);
+            setupViewAsync(signal);
+        }
+    }
+
     //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
@@ -282,6 +307,9 @@ public class StationActivity extends Activity {
 
     @Override
     protected void onDestroy() {
+        if (predictionTimeSignalSubscriber != null) {
+            predictionTimeSignalSubscriber.unsubscribe();
+        }
         unbindService(serviceConnection);
         super.onDestroy();
     }
@@ -299,18 +327,32 @@ public class StationActivity extends Activity {
     private class DateClickListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
-            //todo:
-            AlertDialog.Builder builder  = new AlertDialog.Builder(StationActivity.this);
-            builder.setTitle("Select Date")
-                    .setMessage("TODO...")
-                    .show();
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(StationActivity.this);
+            builder.setItems(new String[] {getString(R.string.choose_date), getString(R.string.choose_time)},
+                    new DialogInterface.OnClickListener() {
+
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    if (i == 0) {
+                        DatePickerDialogFragment.createFragment(dateTv.getText().toString())
+                                .show(getFragmentManager(), null);
+                    } else {
+                        TimePickerDialogFragment.createFragment(dateTv.getText().toString())
+                                .show(getFragmentManager(), null);
+                    }
+                }
+            }).show();
         }
     }
 
     private class ServiceConnectionListener implements HarmonicsServiceConnection.ConnectionListener {
         @Override
         public void onServiceLoaded() {
-            setupViewAsync();
+            predictionTimeSignalSubscriber = new PredictionTimeSignalSubscriber();
+            SignalDispatch.getInstance().getStationPredictionTimeObservable()
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(predictionTimeSignalSubscriber);
         }
 
         @Override

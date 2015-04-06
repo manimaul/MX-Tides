@@ -8,8 +8,8 @@ import android.view.ViewGroup;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
-import com.mxmariner.event.DrawerMenuEvent;
-import com.mxmariner.event.Signals;
+import com.mxmariner.signal.DrawerMenuSignal;
+import com.mxmariner.signal.SignalDispatch;
 import com.mxmariner.fragment.MXMainFragmentId;
 import com.mxmariner.tides.R;
 import com.mxmariner.util.MXPreferences;
@@ -136,34 +136,34 @@ public class DrawerFragment extends Fragment {
     private class ClickListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
-            DrawerMenuEvent event = null;
+            DrawerMenuSignal event = null;
             switch (v.getId()) {
                 case R.id.drawer_layout_close_tide:
-                    event = DrawerMenuEvent.CLOSE_TIDE_STATIONS;
+                    event = DrawerMenuSignal.CLOSE_TIDE_STATIONS;
                     break;
                 case R.id.drawer_layout_close_current:
-                    event = DrawerMenuEvent.CLOSE_CURRENT_STATIONS;
+                    event = DrawerMenuSignal.CLOSE_CURRENT_STATIONS;
                     break;
                 case R.id.drawer_layout_tide_map:
-                    event = DrawerMenuEvent.MAP_TIDE;
+                    event = DrawerMenuSignal.MAP_TIDE;
                     break;
                 case R.id.drawer_layout_current_map:
-                    event = DrawerMenuEvent.MAP_CURRENT;
+                    event = DrawerMenuSignal.MAP_CURRENT;
                     break;
                 case R.id.drawer_layout_settings_tv:
-                    event = DrawerMenuEvent.SETTINGS;
+                    event = DrawerMenuSignal.SETTINGS;
                     break;
                 case R.id.drawer_layout_harmonics_info_tv:
-                    event = DrawerMenuEvent.HARMONICS;
+                    event = DrawerMenuSignal.HARMONICS;
                     break;
                 case R.id.drawer_layout_about_tv:
-                    event = DrawerMenuEvent.ABOUT;
+                    event = DrawerMenuSignal.ABOUT;
                     break;
             }
 
             if (event != null) {
-                Signals.getInstance()
-                        .publishDrawerMenuEvent(event);
+                SignalDispatch.getInstance()
+                        .publishDrawerMenuSignal(event);
             }
         }
     }

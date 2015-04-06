@@ -9,8 +9,8 @@ import android.widget.AdapterView;
 import android.widget.Spinner;
 
 import com.mxmariner.andxtidelib.remote.UnitType;
-import com.mxmariner.event.DrawerMenuEvent;
-import com.mxmariner.event.Signals;
+import com.mxmariner.signal.DrawerMenuSignal;
+import com.mxmariner.signal.SignalDispatch;
 import com.mxmariner.tides.R;
 import com.mxmariner.util.MXPreferences;
 
@@ -144,8 +144,8 @@ public class DrawerSettingsFragment extends Fragment {
     private class DoneClickListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
-            Signals.getInstance()
-                    .publishDrawerMenuEvent(DrawerMenuEvent.SETTINGS_DONE);
+            SignalDispatch.getInstance()
+                    .publishDrawerMenuSignal(DrawerMenuSignal.SETTINGS_DONE);
         }
     }
 

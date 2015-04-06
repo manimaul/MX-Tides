@@ -5,7 +5,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.mxmariner.andxtidelib.remote.RemoteStationData;
-import com.mxmariner.event.Signals;
+import com.mxmariner.signal.SignalDispatch;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -131,8 +131,8 @@ public class StationAdapter extends RecyclerView.Adapter<StationAdapter.ViewHold
 
         @Override
         public void onClick(View v) {
-            Signals.getInstance()
-                    .publishStationIdEvent(stationId);
+            SignalDispatch.getInstance()
+                    .publishStationIdSignal(stationId);
         }
     }
     //endregion ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
