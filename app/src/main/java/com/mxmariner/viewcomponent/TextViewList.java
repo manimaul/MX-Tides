@@ -68,6 +68,7 @@ public class TextViewList extends LinearLayout {
      * @param strings array of strings to add as TextViews (first string skipped)
      */
     public void addTextViewsWithStrings(String[] strings) {
+        removeAllViews();
         for (int i = 2; i < strings.length; i++) {
 
             final int styleId;

@@ -10,7 +10,7 @@ public class SignalDispatch {
 
     private PublishSubject<Observable<DrawerMenuSignal>> drawerEventSubject = PublishSubject.create();
     private PublishSubject<Observable<Long>> stationIdEventSubject = PublishSubject.create();
-    private BehaviorSubject<Observable<PredictionTimeSignal>> stationPredictionTimeSubject = BehaviorSubject.create(PredictionTimeSignal.builder().buildObservable());
+    private BehaviorSubject<Observable<PredictionTimeSignal>> stationPredictionTimeSubject = BehaviorSubject.create();
 
     public static SignalDispatch getInstance() {
         return ourInstance;

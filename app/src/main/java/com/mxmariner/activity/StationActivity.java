@@ -276,6 +276,10 @@ public class StationActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        //set the last published prediction time signal to right now
+        SignalDispatch.getInstance()
+                .publishStationPredictionTime(PredictionTimeSignal.createSignalTimeNow());
+
         setContentView(R.layout.activity_station);
 
         MapView mapView = (MapView) findViewById(R.id.map_view);
@@ -329,7 +333,7 @@ public class StationActivity extends Activity {
         public void onClick(View v) {
 
             AlertDialog.Builder builder = new AlertDialog.Builder(StationActivity.this);
-            builder.setItems(new String[] {getString(R.string.choose_date), getString(R.string.choose_time)},
+            builder.setItems(new String[]{getString(R.string.choose_date), getString(R.string.choose_time), getString(R.string.right_now)},
                     new DialogInterface.OnClickListener() {
 
                 @Override
@@ -337,9 +341,12 @@ public class StationActivity extends Activity {
                     if (i == 0) {
                         DatePickerDialogFragment.createFragment(dateTv.getText().toString())
                                 .show(getFragmentManager(), null);
-                    } else {
+                    } else if (i == 1) {
                         TimePickerDialogFragment.createFragment(dateTv.getText().toString())
                                 .show(getFragmentManager(), null);
+                    } else {
+                        SignalDispatch.getInstance()
+                                .publishStationPredictionTime(PredictionTimeSignal.createSignalTimeNow());
                     }
                 }
             }).show();

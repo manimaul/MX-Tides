@@ -13,13 +13,15 @@ import com.mxmariner.signal.SignalDispatch;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
 
 public class DatePickerDialogFragment extends DialogFragment {
     public static final String TAG = TimePickerDialogFragment.class.getSimpleName();
     private static final String ARG_DATE_STRING = "ARG_DATE_STRING";
     private long actualEpoch;
     private long diffEpoch;
-    private Calendar calendar = Calendar.getInstance();
+    private Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
 
     public static DatePickerDialogFragment createFragment(String dateString) {
         DatePickerDialogFragment fragment = new DatePickerDialogFragment();
@@ -39,11 +41,15 @@ public class DatePickerDialogFragment extends DialogFragment {
             if (dateString.length() >= 10) {
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm aa z");
                 try {
-                    actualEpoch = sdf.parse(dateString).getTime();
+                    Date deviceLocalTime = sdf.parse(dateString);
+                    Log.d(TAG, "deviceLocalTime: " + deviceLocalTime.toString());
+                    Log.d(TAG, "stationLocalTime: " + dateString);
+                    actualEpoch = deviceLocalTime.getTime();
+
                     //2014-04-05 02:30 PM CDT
                     //yyyy-MM-dd hh:mm aa zzz
                     int year = Integer.parseInt(dateString.substring(0, 4));
-                    int month = Integer.parseInt(dateString.substring(5, 7));
+                    int month = Integer.parseInt(dateString.substring(5, 7)) - 1; /* 0 indexed */
                     int day = Integer.parseInt(dateString.substring(8, 10));
                     calendar.set(Calendar.YEAR, year);
                     calendar.set(Calendar.MONTH, month);
@@ -53,15 +59,16 @@ public class DatePickerDialogFragment extends DialogFragment {
                     Log.e(TAG, "", e);
                 }
             }
-
-
         }
     }
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        return new DatePickerDialog(getActivity(), new DateChangedListener(), calendar.get(Calendar.YEAR),
-                calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
+        int year = calendar.get(Calendar.YEAR);
+        int monthOfYear = calendar.get(Calendar.MONTH);
+        int dayOfMonth = calendar.get(Calendar.DAY_OF_MONTH);
+        Log.d(TAG, "calendar: " + calendar.toString());
+        return new DatePickerDialog(getActivity(), new DateChangedListener(), year, monthOfYear, dayOfMonth);
     }
 
     private class DateChangedListener implements DatePickerDialog.OnDateSetListener {
@@ -71,13 +78,12 @@ public class DatePickerDialogFragment extends DialogFragment {
             calendar.set(Calendar.MONTH, monthOfYear);
             calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
 
-            actualEpoch += diffEpoch - calendar.getTimeInMillis();
+            long delta = calendar.getTimeInMillis() - diffEpoch;
+            Log.d(TAG, "delta in days: " + delta / (1000 * 60 * 60 * 24));
+            actualEpoch += delta;
 
             SignalDispatch.getInstance()
-                    .publishStationPredictionTime(PredictionTimeSignal.builder()
-                            .setEpochMillisUTC(actualEpoch)
-                            .setShouldRefreshUI(true)
-                            .build());
+                    .publishStationPredictionTime(PredictionTimeSignal.createSignalWithEpochMillis(actualEpoch));
         }
     }
 

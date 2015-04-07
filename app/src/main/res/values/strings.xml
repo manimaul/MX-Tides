@@ -32,5 +32,6 @@
 
     <string name="choose_date">"Choose Date</string>
     <string name="choose_time">Choose Time</string>
+    <string name="right_now">Right Now</string>
 
 </resources>
