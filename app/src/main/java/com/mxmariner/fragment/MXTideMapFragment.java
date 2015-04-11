@@ -46,9 +46,9 @@ public class MXTideMapFragment extends MXMainFragment {
 
     //region CONSTRUCTOR ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    public static MXTideMapFragment createFragment(MXMainFragmentId fragmentId, Bundle args) {
+    public static MXTideMapFragment createFragment(MXMainFragmentId fragmentId) {
         MXTideMapFragment fragment = new MXTideMapFragment();
-        args = args == null ? new Bundle() : args ;
+        Bundle args = new Bundle();
         args.putSerializable(MXMainFragmentId.class.getSimpleName(), fragmentId);
         fragment.setArguments(args);
         return fragment;

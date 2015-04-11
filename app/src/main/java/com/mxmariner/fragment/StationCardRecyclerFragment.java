@@ -59,9 +59,9 @@ public class StationCardRecyclerFragment extends MXMainFragment {
 
     //region CONSTRUCTOR ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    public static StationCardRecyclerFragment createFragment(MXMainFragmentId fragmentId, Bundle args) {
+    public static StationCardRecyclerFragment createFragment(MXMainFragmentId fragmentId) {
         StationCardRecyclerFragment fragment = new StationCardRecyclerFragment();
-        args = args == null ? new Bundle() : args ;
+        Bundle args = new Bundle();
         args.putSerializable(MXMainFragmentId.class.getSimpleName(), fragmentId);
         fragment.setArguments(args);
         return fragment;

@@ -19,12 +19,12 @@ import com.mxmariner.drawer.DrawerAboutFragment;
 import com.mxmariner.drawer.DrawerFragment;
 import com.mxmariner.drawer.DrawerHarmonicsFragment;
 import com.mxmariner.drawer.DrawerSettingsFragment;
-import com.mxmariner.signal.DrawerMenuSignal;
-import com.mxmariner.signal.SignalDispatch;
 import com.mxmariner.fragment.MXMainFragment;
 import com.mxmariner.fragment.MXMainFragmentId;
 import com.mxmariner.fragment.MXTideMapFragment;
 import com.mxmariner.fragment.StationCardRecyclerFragment;
+import com.mxmariner.signal.DrawerMenuSignal;
+import com.mxmariner.signal.SignalDispatch;
 import com.mxmariner.tides.R;
 import com.mxmariner.util.MXPreferences;
 
@@ -79,29 +79,29 @@ public class MainActivity extends Activity {
                 .commit();
     }
 
-    private void navigateToMainFragmentWithId(MXMainFragmentId fragmentId, Bundle args,  boolean enforce) {
+    private void navigateToMainFragmentWithId(MXMainFragmentId fragmentId, boolean enforce) {
         if (enforce || mxPreferences.getMainFragmentId() != fragmentId) {
 
             MXMainFragment mxMainFragment = null;
 
             switch (fragmentId) {
                 case STATION_CARD_RECYCLER_FRAGMENT_TIDES: {
-                    mxMainFragment = StationCardRecyclerFragment.createFragment(fragmentId, args);
+                    mxMainFragment = StationCardRecyclerFragment.createFragment(fragmentId);
                     break;
                 }
 
                 case STATION_CARD_RECYCLER_FRAGMENT_CURRENTS: {
-                    mxMainFragment = StationCardRecyclerFragment.createFragment(fragmentId, args);
+                    mxMainFragment = StationCardRecyclerFragment.createFragment(fragmentId);
                     break;
                 }
 
                 case MAP_FRAGMENT_TIDES: {
-                    mxMainFragment = MXTideMapFragment.createFragment(fragmentId, args);
+                    mxMainFragment = MXTideMapFragment.createFragment(fragmentId);
                     break;
                 }
 
                 case MAP_FRAGMENT_CURRENTS: {
-                    mxMainFragment = MXTideMapFragment.createFragment(fragmentId, args);
+                    mxMainFragment = MXTideMapFragment.createFragment(fragmentId);
                     break;
                 }
             }
@@ -279,7 +279,7 @@ public class MainActivity extends Activity {
         subscribeToStationIdEvent();
 
         mxPreferences = new MXPreferences(getApplicationContext());
-        navigateToMainFragmentWithId(mxPreferences.getMainFragmentId(), null, true);
+        navigateToMainFragmentWithId(mxPreferences.getMainFragmentId(), true);
     }
 
     @Override
@@ -323,7 +323,7 @@ public class MainActivity extends Activity {
             super.onDrawerClosed(drawerView);
 
             if (pendingId != null) {
-                navigateToMainFragmentWithId(pendingId, null, false);
+                navigateToMainFragmentWithId(pendingId, false);
                 pendingId = null;
             }
         }
