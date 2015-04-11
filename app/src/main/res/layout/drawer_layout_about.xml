@@ -6,13 +6,13 @@
               android:orientation="vertical">
 
     <Button
-        style="@style/Widget.AppCompat.Light.ActionButton"
+        style="@style/DrawerMenuActionButton"
         android:id="@+id/drawer_layout_about_done_btn"
         android:layout_width="wrap_content"
         android:layout_margin="4dp"
         android:layout_height="wrap_content"
         android:textColor="@color/primary_dark"
-        android:text="Done"/>
+        android:text="@string/done"/>
 
     <View
         style="@style/Header"

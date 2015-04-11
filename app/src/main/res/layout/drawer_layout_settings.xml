@@ -11,7 +11,7 @@
         android:orientation="vertical">
 
         <Button
-            style="@style/Widget.AppCompat.Light.ActionButton"
+            style="@style/DrawerMenuActionButton"
             android:id="@+id/drawer_layout_settings_done_btn"
             android:layout_width="wrap_content"
             android:layout_margin="4dp"

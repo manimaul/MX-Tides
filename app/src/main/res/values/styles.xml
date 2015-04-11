@@ -37,7 +37,9 @@
         <item name="android:minHeight">1dp</item>
     </style>
 
-    <style name="DrawerMenuActionButton" parent="Widget.AppCompat.ActionButton">
-        <item name="android:color">@color/accent</item>
+    <style name="DrawerMenuActionButton">
+        <item name="android:textColor">@color/primary_dark</item>
+        <item name="android:background">@android:color/transparent</item>
     </style>
+
 </resources>
