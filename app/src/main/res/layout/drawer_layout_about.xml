@@ -41,6 +41,22 @@
                 android:layout_height="wrap_content"
                 android:text="@string/notice"
                 android:linksClickable="true"
+                android:autoLink="web"
+                android:layout_margin="8dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/gpltitle"
+                android:textStyle="bold"
+                android:layout_margin="8dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/gpl"
+                android:autoLink="web"
+                android:linksClickable="true"
                 android:layout_margin="8dp"/>
 
         </LinearLayout>

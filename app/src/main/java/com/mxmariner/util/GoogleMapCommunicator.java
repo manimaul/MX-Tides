@@ -249,6 +249,7 @@ public class GoogleMapCommunicator implements GoogleMap.OnCameraChangeListener,
                             boundingBox.getMaxLat(), boundingBox.getMaxLon(),
                             boundingBox.getMinLat(), boundingBox.getMinLon());
                     marker.setTitle(count + " " + stationType.getTypeStr() + " station(s) here");
+                    marker.setSnippet(context.getResources().getString(R.string.click_to_zoom));
                 } catch (RemoteException e) {
                     Log.e(TAG, "", e);
                 }

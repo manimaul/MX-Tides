@@ -99,6 +99,14 @@ public class MXTideMapFragment extends MXMainFragment {
                 StationType.STATION_TYPE_TIDE : StationType.STATION_TYPE_CURRENT;
         googleMapCommunicator = new GoogleMapCommunicator(context, type);
         serviceConnection.startService(context, new ServiceConnectionListener());
+
+        MapFragment mapFragment = new MapFragment();
+
+        getFragmentManager().beginTransaction()
+                .add(R.id.map_container, mapFragment)
+                .commit();
+
+        mapFragment.getMapAsync(new MapReadyListener());
     }
 
     @Override
@@ -110,13 +118,6 @@ public class MXTideMapFragment extends MXMainFragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         setupActionBarTitle();
-
-        MapFragment mapFragment = (MapFragment) getChildFragmentManager()
-                .findFragmentById(R.id.map);
-
-        if (mapFragment != null) { //NPE if no GP Services not installed?
-            mapFragment.getMapAsync(new MapReadyListener());
-        }
     }
 
     @Override
