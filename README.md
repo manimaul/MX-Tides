@@ -1,3 +1,10 @@
+# MX Tides (Legacy)
+
+**Atention** - This project is no longer maintained. However please see:
+[mxtide-android](https://github.com/manimaul/mxtide-android) which is maintained and up to date.
+
+--------------------------------------------
+
 MX Tides and is an Android port of XTide by David Flater
 
 MX Tides also depends on the following open source libraries:
